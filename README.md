@@ -65,6 +65,15 @@ A comprehensive travel and destination guide website built with Python and Djang
 ## Screenshots
 
 *Coming soon*
+![image](https://github.com/user-attachments/assets/a995df1f-60c5-4623-bfb4-28ec12b58445)
+![Screenshot 2025-05-18 221804](https://github.com/user-attachments/assets/3edc9d7e-f123-4491-893a-5c50c4277f1b)
+![Screenshot 2025-05-18 221827](https://github.com/user-attachments/assets/efd38b00-5df4-42a2-8755-d482588ce2c8)
+![Screenshot 2025-05-18 221904](https://github.com/user-attachments/assets/f360a677-a313-4015-a62f-3fbda9c7c4fc)
+
+
+
+
+
 
 ## License
 
