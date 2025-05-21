@@ -1,0 +1,330 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Booking Confirmed - Discovering Paradise{% endblock %}
+
+{% block extra_css %}
+<style>
+    .confirmation-header {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 3rem 0;
+    }
+    
+    .confirmation-container {
+        background-color: white;
+        border-radius: var(--border-radius);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        margin-top: -30px;
+        position: relative;
+        z-index: 10;
+    }
+    
+    .confirmation-icon {
+        width: 100px;
+        height: 100px;
+        background-color: #28a745;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        margin: 0 auto 2rem;
+    }
+    
+    .confirmation-section {
+        margin-bottom: 2rem;
+        padding-bottom: 2rem;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .confirmation-section:last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+    }
+    
+    .confirmation-section-title {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .confirmation-section-title .icon {
+        width: 40px;
+        height: 40px;
+        background-color: rgba(var(--primary-rgb), 0.1);
+        color: var(--primary-color);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+    }
+    
+    .confirmation-section-title h3 {
+        margin-bottom: 0;
+    }
+    
+    .booking-details {
+        background-color: #f8f9fa;
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+    }
+    
+    .booking-details .detail-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px dashed #dee2e6;
+    }
+    
+    .booking-details .detail-item:last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+    }
+    
+    .booking-details .detail-item .label {
+        color: #6c757d;
+    }
+    
+    .booking-details .detail-item .value {
+        font-weight: 600;
+    }
+    
+    .payment-details {
+        background-color: #f8f9fa;
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+    }
+    
+    .payment-details .detail-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px dashed #dee2e6;
+    }
+    
+    .payment-details .detail-item:last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+    }
+    
+    .payment-details .detail-item .label {
+        color: #6c757d;
+    }
+    
+    .payment-details .detail-item .value {
+        font-weight: 600;
+    }
+    
+    .payment-details .total {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 2px solid #dee2e6;
+    }
+    
+    .next-steps {
+        background-color: #f8f9fa;
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+    }
+    
+    .next-steps .step {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 1.5rem;
+    }
+    
+    .next-steps .step:last-child {
+        margin-bottom: 0;
+    }
+    
+    .next-steps .step .step-number {
+        width: 30px;
+        height: 30px;
+        background-color: var(--primary-color);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        margin-right: 1rem;
+        flex-shrink: 0;
+    }
+    
+    .next-steps .step .step-content {
+        flex: 1;
+    }
+    
+    .next-steps .step .step-content h5 {
+        margin-bottom: 0.5rem;
+    }
+    
+    .next-steps .step .step-content p {
+        margin-bottom: 0;
+        color: #6c757d;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Confirmation Header -->
+<header class="confirmation-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 mx-auto text-center">
+                <h1 class="display-4 mb-3">Booking Confirmed!</h1>
+                <p class="lead">Your booking has been successfully confirmed. Get ready for an amazing trip!</p>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Confirmation Content -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="confirmation-container text-center">
+                    <div class="confirmation-icon">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <h2 class="mb-3">Thank You for Your Booking</h2>
+                    <p class="lead mb-5">Your booking has been confirmed and we've sent a confirmation email to {{ request.user.email }}.</p>
+                    
+                    <div class="confirmation-section">
+                        <div class="confirmation-section-title">
+                            <div class="icon">
+                                <i class="fas fa-info-circle"></i>
+                            </div>
+                            <h3>Booking Information</h3>
+                        </div>
+                        <div class="booking-details">
+                            <div class="detail-item">
+                                <span class="label">Booking ID</span>
+                                <span class="value">{{ booking.booking_id }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="label">Destination</span>
+                                <span class="value">{{ booking.destination.name }}, {{ booking.destination.country }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="label">Accommodation</span>
+                                <span class="value">{{ booking.accommodation.name }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="label">Check-in</span>
+                                <span class="value">{{ booking.start_date|date:"F d, Y" }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="label">Check-out</span>
+                                <span class="value">{{ booking.end_date|date:"F d, Y" }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="label">Guests</span>
+                                <span class="value">{{ booking.adults }} Adult{% if booking.adults > 1 %}s{% endif %}{% if booking.children %}, {{ booking.children }} Child{% if booking.children > 1 %}ren{% endif %}{% endif %}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="label">Booking Status</span>
+                                <span class="value">{{ booking.get_status_display }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="confirmation-section">
+                        <div class="confirmation-section-title">
+                            <div class="icon">
+                                <i class="fas fa-credit-card"></i>
+                            </div>
+                            <h3>Payment Information</h3>
+                        </div>
+                        <div class="payment-details">
+                            <div class="detail-item">
+                                <span class="label">Payment Method</span>
+                                <span class="value">{{ payment.get_payment_method_display }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="label">Transaction ID</span>
+                                <span class="value">{{ payment.transaction_id }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="label">Payment Date</span>
+                                <span class="value">{{ payment.created_at|date:"F d, Y" }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="label">Payment Status</span>
+                                <span class="value">{{ payment.get_status_display }}</span>
+                            </div>
+                            <div class="detail-item total">
+                                <span class="label">Total Amount</span>
+                                <span class="value">${{ booking.total_price }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="confirmation-section">
+                        <div class="confirmation-section-title">
+                            <div class="icon">
+                                <i class="fas fa-tasks"></i>
+                            </div>
+                            <h3>Next Steps</h3>
+                        </div>
+                        <div class="next-steps">
+                            <div class="step">
+                                <div class="step-number">1</div>
+                                <div class="step-content">
+                                    <h5>Check Your Email</h5>
+                                    <p>We've sent a confirmation email with all the details of your booking. Please check your inbox (and spam folder, just in case).</p>
+                                </div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">2</div>
+                                <div class="step-content">
+                                    <h5>Review Your Booking</h5>
+                                    <p>Take a moment to review all the details of your booking to ensure everything is correct.</p>
+                                </div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">3</div>
+                                <div class="step-content">
+                                    <h5>Prepare for Your Trip</h5>
+                                    <p>Start planning for your trip! Check out our travel guides for {{ booking.destination.name }} to make the most of your stay.</p>
+                                </div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">4</div>
+                                <div class="step-content">
+                                    <h5>Contact Us If Needed</h5>
+                                    <p>If you have any questions or need to make changes to your booking, please don't hesitate to contact our customer support team.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-3 mt-5">
+                        <a href="{% url 'booking_detail' booking_id=booking.booking_id %}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-eye me-2"></i> View Booking Details
+                        </a>
+                        <a href="{% url 'my_bookings' %}" class="btn btn-outline-primary btn-lg">
+                            <i class="fas fa-list me-2"></i> View All Bookings
+                        </a>
+                        <a href="{% url 'destination_detail' slug=booking.destination.slug %}" class="btn btn-outline-secondary btn-lg">
+                            <i class="fas fa-map-marker-alt me-2"></i> Explore {{ booking.destination.name }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

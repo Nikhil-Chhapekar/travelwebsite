@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Frequently Asked Questions - Discovering Paradise{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="bg-primary text-white py-5">
+    <div class="container">
+        <h1 class="display-4">Frequently Asked Questions</h1>
+        <p class="lead">Find answers to common questions about our services and travel experiences.</p>
+    </div>
+</div>
+
+<!-- FAQ Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                {% if faqs %}
+                    <div class="accordion" id="faqAccordion">
+                        {% for faq in faqs %}
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="heading{{ forloop.counter }}">
+                                    <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}" aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}" aria-controls="collapse{{ forloop.counter }}">
+                                        {{ faq.question }}
+                                    </button>
+                                </h2>
+                                <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" aria-labelledby="heading{{ forloop.counter }}" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        {{ faq.answer|linebreaks }}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <p>We're currently updating our FAQ section. Please check back soon or contact us directly with your questions.</p>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="col-lg-4 mt-4 mt-lg-0">
+                <div class="card shadow mb-4">
+                    <div class="card-body">
+                        <h4 class="card-title">Can't Find Your Answer?</h4>
+                        <p>If you couldn't find the information you're looking for, please don't hesitate to contact us directly.</p>
+                        <a href="{% url 'contact' %}" class="btn btn-primary">Contact Us</a>
+                    </div>
+                </div>
+                
+                <div class="card shadow">
+                    <div class="card-body">
+                        <h4 class="card-title">Popular Topics</h4>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item"><a href="#" class="text-decoration-none">Booking Process</a></li>
+                            <li class="list-group-item"><a href="#" class="text-decoration-none">Payment Options</a></li>
+                            <li class="list-group-item"><a href="#" class="text-decoration-none">Cancellation Policy</a></li>
+                            <li class="list-group-item"><a href="#" class="text-decoration-none">Travel Insurance</a></li>
+                            <li class="list-group-item"><a href="#" class="text-decoration-none">Destination Guides</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Categories Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center mb-5">Browse by Category</h2>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow">
+                    <div class="card-body text-center py-4">
+                        <i class="fas fa-plane-departure fa-3x text-primary mb-3"></i>
+                        <h4 class="card-title">Booking & Reservations</h4>
+                        <p class="card-text">Find answers about the booking process, modifications, and cancellations.</p>
+                        <a href="#" class="btn btn-outline-primary">View Questions</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow">
+                    <div class="card-body text-center py-4">
+                        <i class="fas fa-credit-card fa-3x text-primary mb-3"></i>
+                        <h4 class="card-title">Payments & Pricing</h4>
+                        <p class="card-text">Learn about payment methods, pricing policies, and refund procedures.</p>
+                        <a href="#" class="btn btn-outline-primary">View Questions</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow">
+                    <div class="card-body text-center py-4">
+                        <i class="fas fa-suitcase fa-3x text-primary mb-3"></i>
+                        <h4 class="card-title">Travel Preparation</h4>
+                        <p class="card-text">Get information about travel documents, packing tips, and destination requirements.</p>
+                        <a href="#" class="btn btn-outline-primary">View Questions</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact CTA -->
+<section class="py-5 bg-primary text-white">
+    <div class="container text-center">
+        <h2 class="mb-4">Still Have Questions?</h2>
+        <p class="lead mb-4">Our travel experts are ready to assist you with any inquiries you may have.</p>
+        <a href="{% url 'contact' %}" class="btn btn-light btn-lg">Contact Our Team</a>
+    </div>
+</section>
+{% endblock %}

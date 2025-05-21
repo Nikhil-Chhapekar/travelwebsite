@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Sitemap - Discovering Paradise{% endblock %}
+
+{% block extra_css %}
+<style>
+    .sitemap-header {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 3rem 0;
+    }
+    
+    .sitemap-content {
+        background-color: white;
+        border-radius: var(--border-radius);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        padding: 2rem;
+        margin-top: -30px;
+        position: relative;
+        z-index: 10;
+    }
+    
+    .sitemap-section {
+        margin-bottom: 2rem;
+    }
+    
+    .sitemap-section h2 {
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .sitemap-links {
+        list-style: none;
+        padding-left: 0;
+    }
+    
+    .sitemap-links li {
+        margin-bottom: 0.5rem;
+    }
+    
+    .sitemap-links li a {
+        display: block;
+        padding: 0.5rem 0;
+        color: #333;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    
+    .sitemap-links li a:hover {
+        color: var(--primary-color);
+        padding-left: 0.5rem;
+    }
+    
+    .sitemap-links li a i {
+        margin-right: 0.5rem;
+        color: var(--primary-color);
+    }
+    
+    .sitemap-links .sub-links {
+        list-style: none;
+        padding-left: 1.5rem;
+        margin-top: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Sitemap Header -->
+<header class="sitemap-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 mx-auto text-center">
+                <h1 class="display-4 mb-3">Sitemap</h1>
+                <p class="lead">Find your way around our website</p>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Sitemap Content -->
+<section class="py-5">
+    <div class="container">
+        <div class="sitemap-content">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="sitemap-section">
+                        <h2>Main Pages</h2>
+                        <ul class="sitemap-links">
+                            <li><a href="{% url 'home' %}"><i class="fas fa-home"></i> Home</a></li>
+                            <li><a href="{% url 'destination_list' %}"><i class="fas fa-globe-americas"></i> Destinations</a></li>
+                            <li><a href="{% url 'about' %}"><i class="fas fa-info-circle"></i> About Us</a></li>
+                            <li><a href="{% url 'contact' %}"><i class="fas fa-envelope"></i> Contact</a></li>
+                            <li><a href="{% url 'faq' %}"><i class="fas fa-question-circle"></i> FAQ</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="sitemap-section">
+                        <h2>Legal</h2>
+                        <ul class="sitemap-links">
+                            <li><a href="{% url 'privacy_policy' %}"><i class="fas fa-shield-alt"></i> Privacy Policy</a></li>
+                            <li><a href="{% url 'terms' %}"><i class="fas fa-file-contract"></i> Terms of Service</a></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="sitemap-section">
+                        <h2>Destinations</h2>
+                        <ul class="sitemap-links">
+                            <li><a href="{% url 'destination_list' %}"><i class="fas fa-list"></i> All Destinations</a></li>
+                            <li>
+                                <a href="{% url 'destination_by_continent' continent='AF' %}"><i class="fas fa-map-marker-alt"></i> Africa</a>
+                            </li>
+                            <li>
+                                <a href="{% url 'destination_by_continent' continent='AS' %}"><i class="fas fa-map-marker-alt"></i> Asia</a>
+                            </li>
+                            <li>
+                                <a href="{% url 'destination_by_continent' continent='EU' %}"><i class="fas fa-map-marker-alt"></i> Europe</a>
+                            </li>
+                            <li>
+                                <a href="{% url 'destination_by_continent' continent='NA' %}"><i class="fas fa-map-marker-alt"></i> North America</a>
+                            </li>
+                            <li>
+                                <a href="{% url 'destination_by_continent' continent='SA' %}"><i class="fas fa-map-marker-alt"></i> South America</a>
+                            </li>
+                            <li>
+                                <a href="{% url 'destination_by_continent' continent='OC' %}"><i class="fas fa-map-marker-alt"></i> Oceania</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="sitemap-section">
+                        <h2>User Account</h2>
+                        <ul class="sitemap-links">
+                            <li><a href="{% url 'register' %}"><i class="fas fa-user-plus"></i> Register</a></li>
+                            <li><a href="{% url 'login' %}"><i class="fas fa-sign-in-alt"></i> Login</a></li>
+                            <li><a href="{% url 'profile' %}"><i class="fas fa-user"></i> My Profile</a></li>
+                            <li><a href="{% url 'edit_profile' %}"><i class="fas fa-user-edit"></i> Edit Profile</a></li>
+                            <li><a href="{% url 'my_bookings' %}"><i class="fas fa-ticket-alt"></i> My Bookings</a></li>
+                            <li><a href="{% url 'wishlist' %}"><i class="fas fa-heart"></i> My Wishlist</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="sitemap-section">
+                        <h2>Booking</h2>
+                        <ul class="sitemap-links">
+                            <li><a href="{% url 'my_bookings' %}"><i class="fas fa-list-alt"></i> View My Bookings</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

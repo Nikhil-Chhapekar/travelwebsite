@@ -1,0 +1,236 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load booking_extras %}
+
+{% block title %}Cancel Booking - Discovering Paradise{% endblock %}
+
+{% block extra_css %}
+<style>
+    .cancel-header {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 3rem 0;
+    }
+
+    .cancel-container {
+        background-color: white;
+        border-radius: var(--border-radius);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        margin-top: -30px;
+        position: relative;
+        z-index: 10;
+    }
+
+    .cancel-icon {
+        width: 100px;
+        height: 100px;
+        background-color: #dc3545;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        margin: 0 auto 2rem;
+    }
+
+    .booking-details {
+        background-color: #f8f9fa;
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .booking-details .detail-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px dashed #dee2e6;
+    }
+
+    .booking-details .detail-item:last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+    }
+
+    .booking-details .detail-item .label {
+        color: #6c757d;
+    }
+
+    .booking-details .detail-item .value {
+        font-weight: 600;
+    }
+
+    .cancellation-policy {
+        background-color: #f8f9fa;
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .cancellation-policy h4 {
+        margin-bottom: 1rem;
+    }
+
+    .cancellation-policy ul {
+        padding-left: 1.5rem;
+    }
+
+    .cancellation-policy ul li {
+        margin-bottom: 0.5rem;
+    }
+
+    .refund-info {
+        background-color: #f8f9fa;
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .refund-info h4 {
+        margin-bottom: 1rem;
+    }
+
+    .refund-info .refund-amount {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+    }
+
+    .confirmation-checkbox {
+        margin-bottom: 2rem;
+    }
+
+    .confirmation-checkbox .form-check-input:checked {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Cancel Header -->
+<header class="cancel-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 mx-auto text-center">
+                <h1 class="display-4 mb-3">Cancel Booking</h1>
+                <p class="lead">We're sorry to see you cancel your booking. Please review the information below.</p>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Cancel Content -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="cancel-container">
+                    <div class="cancel-icon">
+                        <i class="fas fa-times"></i>
+                    </div>
+                    <h2 class="text-center mb-4">Cancel Your Booking</h2>
+                    <p class="text-center mb-5">Please review your booking details and our cancellation policy before proceeding.</p>
+
+                    <h3 class="mb-3">Booking Details</h3>
+                    <div class="booking-details">
+                        <div class="detail-item">
+                            <span class="label">Booking ID</span>
+                            <span class="value">{{ booking.booking_id }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Destination</span>
+                            <span class="value">{{ booking.destination.name }}, {{ booking.destination.country }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Accommodation</span>
+                            <span class="value">{{ booking.accommodation.name }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Check-in</span>
+                            <span class="value">{{ booking.start_date|date:"F d, Y" }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Check-out</span>
+                            <span class="value">{{ booking.end_date|date:"F d, Y" }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Booking Status</span>
+                            <span class="value">{{ booking.get_status_display }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Total Amount</span>
+                            <span class="value">${{ booking.total_price }}</span>
+                        </div>
+                    </div>
+
+                    <h3 class="mb-3">Cancellation Policy</h3>
+                    <div class="cancellation-policy">
+                        <h4>Refund Policy</h4>
+                        <ul>
+                            <li>Cancellations made more than 30 days before check-in date: 100% refund</li>
+                            <li>Cancellations made 15-30 days before check-in date: 75% refund</li>
+                            <li>Cancellations made 7-14 days before check-in date: 50% refund</li>
+                            <li>Cancellations made less than 7 days before check-in date: No refund</li>
+                        </ul>
+                        <p class="mt-3 mb-0">Please note that the refund will be processed to the original payment method and may take 5-10 business days to appear in your account.</p>
+                    </div>
+
+                    <h3 class="mb-3">Refund Information</h3>
+                    <div class="refund-info">
+                        {% with days_until_checkin=booking.start_date|days_until:"now" %}
+                            {% if days_until_checkin > 30 %}
+                                <h4>You are eligible for a 100% refund</h4>
+                                <div class="refund-amount">${{ booking.total_price }}</div>
+                                <p>Your cancellation is more than 30 days before your check-in date, so you are eligible for a full refund.</p>
+                            {% elif days_until_checkin > 14 %}
+                                <h4>You are eligible for a 75% refund</h4>
+                                {% with refund_amount=booking.total_price|floatformat:2|multiply:0.75 %}
+                                    <div class="refund-amount">${{ refund_amount }}</div>
+                                {% endwith %}
+                                <p>Your cancellation is 15-30 days before your check-in date, so you are eligible for a 75% refund.</p>
+                            {% elif days_until_checkin > 7 %}
+                                <h4>You are eligible for a 50% refund</h4>
+                                {% with refund_amount=booking.total_price|floatformat:2|multiply:0.5 %}
+                                    <div class="refund-amount">${{ refund_amount }}</div>
+                                {% endwith %}
+                                <p>Your cancellation is 7-14 days before your check-in date, so you are eligible for a 50% refund.</p>
+                            {% else %}
+                                <h4>You are not eligible for a refund</h4>
+                                <div class="refund-amount">$0</div>
+                                <p>Your cancellation is less than 7 days before your check-in date, so you are not eligible for a refund.</p>
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="confirmation-checkbox">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="confirm_cancellation" name="confirm_cancellation" required>
+                                <label class="form-check-label" for="confirm_cancellation">
+                                    I understand that by cancelling this booking, I agree to the cancellation policy and refund terms outlined above.
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-3">
+                            <button type="submit" class="btn btn-danger btn-lg">
+                                <i class="fas fa-times-circle me-2"></i> Confirm Cancellation
+                            </button>
+                            <a href="{% url 'booking_detail' booking_id=booking.booking_id %}" class="btn btn-outline-secondary btn-lg">
+                                <i class="fas fa-arrow-left me-2"></i> Back to Booking Details
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

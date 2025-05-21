@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Login - Discovering Paradise{% endblock %}
+
+{% block extra_css %}
+<style>
+    .auth-section {
+        background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('{% static "images/backgrounds/hero-bg.jpg" %}');
+        background-size: cover;
+        background-position: center;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 0;
+    }
+
+    .auth-card {
+        background-color: white;
+        border-radius: var(--border-radius);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        max-width: 500px;
+        width: 100%;
+    }
+
+    .auth-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        color: white;
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .auth-header h1 {
+        margin-bottom: 0.5rem;
+        font-weight: 700;
+    }
+
+    .auth-body {
+        padding: 2.5rem;
+    }
+
+    .auth-form .form-control {
+        height: 50px;
+        font-size: 1rem;
+    }
+
+    .auth-form .btn {
+        height: 50px;
+        font-size: 1rem;
+        font-weight: 600;
+    }
+
+    .auth-footer {
+        text-align: center;
+        padding: 1.5rem;
+        background-color: #f8f9fa;
+        border-top: 1px solid #eee;
+    }
+
+    .social-login {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .social-login a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin: 0 0.5rem;
+        color: white;
+        transition: all 0.3s ease;
+    }
+
+    .social-login a:hover {
+        transform: translateY(-3px);
+    }
+
+    .social-login .facebook {
+        background-color: #3b5998;
+    }
+
+    .social-login .google {
+        background-color: #dd4b39;
+    }
+
+    .social-login .twitter {
+        background-color: #1da1f2;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="auth-card">
+                    <div class="auth-header">
+                        <h1>Welcome Back</h1>
+                        <p>Sign in to access your account</p>
+                    </div>
+                    <div class="auth-body">
+                        {% if form.errors %}
+                            <div class="alert alert-danger">
+                                <p>Your username and password didn't match. Please try again.</p>
+                            </div>
+                        {% endif %}
+
+                        {% if next %}
+                            {% if user.is_authenticated %}
+                                <div class="alert alert-info">
+                                    <p>Your account doesn't have access to this page. To proceed, please login with an account that has access.</p>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-info">
+                                    <p>Please login to see this page.</p>
+                                </div>
+                            {% endif %}
+                        {% endif %}
+
+                        <form method="post" action="{% url 'login' %}" class="auth-form">
+                            {% csrf_token %}
+                            <div class="mb-4">
+                                <label for="id_username" class="form-label">Username</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0">
+                                        <i class="fas fa-user text-primary"></i>
+                                    </span>
+                                    <input type="text" name="username" id="id_username" class="form-control border-start-0" placeholder="Enter your username" required>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label for="id_password" class="form-label">Password</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0">
+                                        <i class="fas fa-lock text-primary"></i>
+                                    </span>
+                                    <input type="password" name="password" id="id_password" class="form-control border-start-0" placeholder="Enter your password" required>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="remember-me">
+                                    <label class="form-check-label" for="remember-me">
+                                        Remember me
+                                    </label>
+                                </div>
+                                <a href="#" class="text-primary">Forgot password?</a>
+                            </div>
+                            <input type="hidden" name="next" value="{{ next }}">
+                            <button type="submit" class="btn btn-primary w-100">Sign In</button>
+                        </form>
+                    </div>
+                    <div class="auth-footer">
+                        <p class="mb-3">Or sign in with</p>
+                        <div class="social-login">
+                            <a href="#" class="facebook">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            <a href="#" class="google">
+                                <i class="fab fa-google"></i>
+                            </a>
+                            <a href="#" class="twitter">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                        </div>
+                        <p class="mb-0">Don't have an account? <a href="{% url 'register' %}" class="text-primary">Sign up</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

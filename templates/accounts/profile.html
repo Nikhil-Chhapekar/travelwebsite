@@ -1,0 +1,428 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Profile - Discovering Paradise{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-header {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 3rem 0;
+    }
+    
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid white;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .profile-stats {
+        display: flex;
+        justify-content: space-around;
+        margin-top: 2rem;
+    }
+    
+    .profile-stat {
+        text-align: center;
+    }
+    
+    .profile-stat .number {
+        font-size: 1.8rem;
+        font-weight: 700;
+        display: block;
+    }
+    
+    .profile-stat .label {
+        font-size: 0.9rem;
+        opacity: 0.8;
+    }
+    
+    .profile-nav {
+        background-color: white;
+        border-radius: var(--border-radius);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        margin-top: -30px;
+        position: relative;
+        z-index: 10;
+    }
+    
+    .profile-nav .nav-link {
+        padding: 1rem 1.5rem;
+        color: #495057;
+        font-weight: 500;
+    }
+    
+    .profile-nav .nav-link.active {
+        color: var(--primary-color);
+        background-color: transparent;
+        border-bottom: 3px solid var(--primary-color);
+    }
+    
+    .profile-section {
+        padding: 2rem;
+        background-color: white;
+        border-radius: var(--border-radius);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        margin-bottom: 2rem;
+    }
+    
+    .profile-section-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .booking-card, .review-card, .wishlist-card {
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        margin-bottom: 1.5rem;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .booking-card:hover, .review-card:hover, .wishlist-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .booking-card img, .wishlist-card img {
+        height: 150px;
+        object-fit: cover;
+    }
+    
+    .booking-status {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    
+    .booking-status.confirmed {
+        background-color: rgba(40, 167, 69, 0.1);
+        color: #28a745;
+    }
+    
+    .booking-status.pending {
+        background-color: rgba(255, 193, 7, 0.1);
+        color: #ffc107;
+    }
+    
+    .booking-status.cancelled {
+        background-color: rgba(220, 53, 69, 0.1);
+        color: #dc3545;
+    }
+    
+    .review-card .review-header {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        background-color: #f8f9fa;
+    }
+    
+    .review-card .review-header img {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 1rem;
+    }
+    
+    .review-card .review-body {
+        padding: 1.5rem;
+    }
+    
+    .review-card .review-footer {
+        padding: 1rem;
+        background-color: #f8f9fa;
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Profile Header -->
+<header class="profile-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-3 text-center text-md-start">
+                {% if profile.avatar %}
+                    <img src="{{ profile.avatar.url }}" alt="{{ request.user.username }}" class="profile-avatar">
+                {% else %}
+                    <img src="{% static 'images/default-profile.jpg' %}" alt="{{ request.user.username }}" class="profile-avatar">
+                {% endif %}
+            </div>
+            <div class="col-md-6">
+                <h1 class="mb-1">{{ request.user.get_full_name|default:request.user.username }}</h1>
+                <p class="mb-3"><i class="fas fa-map-marker-alt me-2"></i>{{ profile.location|default:"Location not specified" }}</p>
+                <p class="mb-0">{{ profile.bio|default:"No bio provided yet." }}</p>
+            </div>
+            <div class="col-md-3 text-center text-md-end">
+                <a href="{% url 'edit_profile' %}" class="btn btn-light">
+                    <i class="fas fa-edit me-2"></i> Edit Profile
+                </a>
+            </div>
+        </div>
+        
+        <div class="profile-stats">
+            <div class="profile-stat">
+                <span class="number">{{ bookings.count }}</span>
+                <span class="label">Bookings</span>
+            </div>
+            <div class="profile-stat">
+                <span class="number">{{ reviews.count }}</span>
+                <span class="label">Reviews</span>
+            </div>
+            <div class="profile-stat">
+                <span class="number">{{ wishlist_items.count }}</span>
+                <span class="label">Wishlist</span>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Profile Navigation -->
+<div class="container">
+    <div class="profile-nav">
+        <ul class="nav nav-tabs border-0 justify-content-center" id="profileTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="bookings-tab" data-bs-toggle="tab" data-bs-target="#bookings" type="button" role="tab" aria-controls="bookings" aria-selected="true">
+                    <i class="fas fa-calendar-check me-2"></i> My Bookings
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" type="button" role="tab" aria-controls="reviews" aria-selected="false">
+                    <i class="fas fa-star me-2"></i> My Reviews
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="wishlist-tab" data-bs-toggle="tab" data-bs-target="#wishlist" type="button" role="tab" aria-controls="wishlist" aria-selected="false">
+                    <i class="fas fa-heart me-2"></i> My Wishlist
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings" type="button" role="tab" aria-controls="settings" aria-selected="false">
+                    <i class="fas fa-cog me-2"></i> Account Settings
+                </button>
+            </li>
+        </ul>
+    </div>
+    
+    <!-- Tab Content -->
+    <div class="tab-content mt-4" id="profileTabContent">
+        <!-- Bookings Tab -->
+        <div class="tab-pane fade show active" id="bookings" role="tabpanel" aria-labelledby="bookings-tab">
+            <div class="profile-section">
+                <div class="profile-section-title">
+                    <h3 class="mb-0">Recent Bookings</h3>
+                    <a href="#" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                
+                {% if bookings %}
+                    <div class="row">
+                        {% for booking in bookings %}
+                            <div class="col-md-6 mb-4">
+                                <div class="booking-card">
+                                    <div class="position-relative">
+                                        {% if booking.accommodation.image %}
+                                            <img src="{{ booking.accommodation.image.url }}" alt="{{ booking.accommodation.name }}" class="card-img-top">
+                                        {% else %}
+                                            <img src="{% static 'images/accommodations/placeholder.jpg' %}" alt="{{ booking.accommodation.name }}" class="card-img-top">
+                                        {% endif %}
+                                        <span class="booking-status {{ booking.status|lower }}">{{ booking.get_status_display }}</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{ booking.accommodation.name }}</h5>
+                                        <p class="card-text text-muted">
+                                            <i class="fas fa-map-marker-alt me-1"></i> {{ booking.accommodation.destination.name }}, {{ booking.accommodation.destination.country }}
+                                        </p>
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <div>
+                                                <i class="fas fa-calendar-alt text-primary me-1"></i> {{ booking.check_in|date:"M d, Y" }} - {{ booking.check_out|date:"M d, Y" }}
+                                            </div>
+                                            <div class="fw-bold">
+                                                ${{ booking.total_price }}
+                                            </div>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <a href="#" class="btn btn-sm btn-outline-primary">View Details</a>
+                                            {% if booking.status == 'CONFIRMED' %}
+                                                <a href="#" class="btn btn-sm btn-outline-danger">Cancel</a>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-calendar-alt fa-3x text-muted mb-3"></i>
+                        <h4>No bookings yet</h4>
+                        <p class="text-muted">You haven't made any bookings yet. Start exploring destinations and book your next adventure!</p>
+                        <a href="{% url 'destination_list' %}" class="btn btn-primary mt-3">Explore Destinations</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Reviews Tab -->
+        <div class="tab-pane fade" id="reviews" role="tabpanel" aria-labelledby="reviews-tab">
+            <div class="profile-section">
+                <div class="profile-section-title">
+                    <h3 class="mb-0">My Reviews</h3>
+                    <a href="#" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                
+                {% if reviews %}
+                    {% for review in reviews %}
+                        <div class="review-card">
+                            <div class="review-header">
+                                <img src="{% static 'images/destinations/placeholder.jpg' %}" alt="{{ review.destination.name }}">
+                                <div>
+                                    <h5 class="mb-0">{{ review.destination.name }}</h5>
+                                    <div class="stars">
+                                        {% for i in "12345" %}
+                                            {% if forloop.counter <= review.rating %}
+                                                <i class="fas fa-star text-warning"></i>
+                                            {% else %}
+                                                <i class="far fa-star text-warning"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="review-body">
+                                <h5>{{ review.title }}</h5>
+                                <p>{{ review.content }}</p>
+                            </div>
+                            <div class="review-footer d-flex justify-content-between align-items-center">
+                                <span><i class="far fa-calendar-alt me-1"></i> {{ review.created_at|date:"F d, Y" }}</span>
+                                <div>
+                                    <a href="#" class="btn btn-sm btn-outline-primary me-2">Edit</a>
+                                    <a href="#" class="btn btn-sm btn-outline-danger">Delete</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-star fa-3x text-muted mb-3"></i>
+                        <h4>No reviews yet</h4>
+                        <p class="text-muted">You haven't written any reviews yet. Share your experiences with other travelers!</p>
+                        <a href="{% url 'destination_list' %}" class="btn btn-primary mt-3">Explore Destinations</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Wishlist Tab -->
+        <div class="tab-pane fade" id="wishlist" role="tabpanel" aria-labelledby="wishlist-tab">
+            <div class="profile-section">
+                <div class="profile-section-title">
+                    <h3 class="mb-0">My Wishlist</h3>
+                    <a href="{% url 'wishlist' %}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                
+                {% if wishlist_items %}
+                    <div class="row">
+                        {% for item in wishlist_items %}
+                            <div class="col-md-6 mb-4">
+                                <div class="wishlist-card">
+                                    {% if item.destination.image %}
+                                        <img src="{{ item.destination.image.url }}" alt="{{ item.destination.name }}" class="card-img-top">
+                                    {% else %}
+                                        <img src="{% static 'images/destinations/placeholder.jpg' %}" alt="{{ item.destination.name }}" class="card-img-top">
+                                    {% endif %}
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{ item.destination.name }}</h5>
+                                        <p class="card-text text-muted">
+                                            <i class="fas fa-map-marker-alt me-1"></i> {{ item.destination.country }}
+                                        </p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <a href="{{ item.destination.get_absolute_url }}" class="btn btn-sm btn-primary">
+                                                Explore <i class="fas fa-arrow-right ms-1"></i>
+                                            </a>
+                                            <form action="{% url 'remove_from_wishlist' item_id=item.id %}" method="post" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-heart fa-3x text-muted mb-3"></i>
+                        <h4>Your wishlist is empty</h4>
+                        <p class="text-muted">Save your favorite destinations to your wishlist for easy access later.</p>
+                        <a href="{% url 'destination_list' %}" class="btn btn-primary mt-3">Explore Destinations</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Settings Tab -->
+        <div class="tab-pane fade" id="settings" role="tabpanel" aria-labelledby="settings-tab">
+            <div class="profile-section">
+                <div class="profile-section-title">
+                    <h3 class="mb-0">Account Settings</h3>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Personal Information</h5>
+                                <p class="card-text">Update your personal information and profile details.</p>
+                                <a href="{% url 'edit_profile' %}" class="btn btn-primary">Edit Profile</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Password & Security</h5>
+                                <p class="card-text">Change your password and manage security settings.</p>
+                                <a href="{% url 'password_change' %}" class="btn btn-primary">Change Password</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Notification Preferences</h5>
+                                <p class="card-text">Manage your email notifications and preferences.</p>
+                                <a href="#" class="btn btn-primary">Manage Notifications</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Payment Methods</h5>
+                                <p class="card-text">Add or remove payment methods for bookings.</p>
+                                <a href="#" class="btn btn-primary">Manage Payments</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

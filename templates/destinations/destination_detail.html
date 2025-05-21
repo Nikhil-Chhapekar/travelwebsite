@@ -1,0 +1,457 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load destination_extras %}
+
+{% block title %}{{ destination.name }} - Discovering Paradise{% endblock %}
+
+{% block extra_css %}
+<style>
+    .destination-header {
+        position: relative;
+        height: 60vh;
+        background-size: cover;
+        background-position: center;
+        color: white;
+        display: flex;
+        align-items: flex-end;
+    }
+
+    .destination-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.7) 100%);
+    }
+
+    .destination-header-content {
+        position: relative;
+        z-index: 1;
+        padding-bottom: 3rem;
+    }
+
+    .destination-meta {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .destination-meta .badge {
+        margin-right: 1rem;
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    .destination-rating {
+        display: flex;
+        align-items: center;
+    }
+
+    .destination-rating .stars {
+        color: #FFD700;
+        margin-right: 0.5rem;
+    }
+
+    .nav-tabs .nav-link {
+        color: #495057;
+        font-weight: 500;
+        padding: 1rem 1.5rem;
+        border: none;
+        border-bottom: 3px solid transparent;
+    }
+
+    .nav-tabs .nav-link.active {
+        color: var(--primary-color);
+        background-color: transparent;
+        border-bottom: 3px solid var(--primary-color);
+    }
+
+    .nav-tabs .nav-link:hover:not(.active) {
+        border-bottom: 3px solid #e9ecef;
+    }
+
+    .tab-content {
+        padding: 2rem 0;
+    }
+
+    .highlight-item {
+        margin-bottom: 1.5rem;
+        padding-left: 2rem;
+        position: relative;
+    }
+
+    .highlight-item i {
+        position: absolute;
+        left: 0;
+        top: 0.25rem;
+        color: var(--primary-color);
+    }
+
+    .accommodation-card, .activity-card {
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        height: 100%;
+    }
+
+    .accommodation-card:hover, .activity-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    .accommodation-card img, .activity-card img {
+        height: 200px;
+        object-fit: cover;
+    }
+
+    .review-card {
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 1.5rem;
+    }
+
+    .review-card .review-header {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        background-color: #f8f9fa;
+    }
+
+    .review-card .review-header img {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 1rem;
+    }
+
+    .review-card .review-body {
+        padding: 1.5rem;
+    }
+
+    .review-card .review-footer {
+        padding: 1rem;
+        background-color: #f8f9fa;
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+
+    .weather-widget {
+        background-color: #f8f9fa;
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .weather-icon {
+        font-size: 3rem;
+        color: var(--primary-color);
+    }
+
+    .map-container {
+        height: 300px;
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Destination Header -->
+<header class="destination-header" style="background-image: url('{% if destination.image %}{{ destination.image.url }}{% else %}{% static 'images/destinations/placeholder.jpg' %}{% endif %}');">
+    <div class="container destination-header-content">
+        <div class="destination-meta">
+            <span class="badge bg-primary">{{ destination.get_continent_display }}</span>
+            <div class="destination-rating">
+                <div class="stars">
+                    {{ avg_rating|star_rating }}
+                </div>
+                <span>{{ avg_rating|floatformat:1 }} ({{ reviews.count }} reviews)</span>
+            </div>
+        </div>
+        <h1 class="display-4">{{ destination.name }}</h1>
+        <p class="lead"><i class="fas fa-map-marker-alt me-2"></i>{{ destination.country }}</p>
+    </div>
+</header>
+
+<!-- Destination Content -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Tabs Navigation -->
+                <ul class="nav nav-tabs mb-4" id="destinationTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab" aria-controls="overview" aria-selected="true">
+                            <i class="fas fa-info-circle me-2"></i>Overview
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="accommodations-tab" data-bs-toggle="tab" data-bs-target="#accommodations" type="button" role="tab" aria-controls="accommodations" aria-selected="false">
+                            <i class="fas fa-hotel me-2"></i>Accommodations
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="activities-tab" data-bs-toggle="tab" data-bs-target="#activities" type="button" role="tab" aria-controls="activities" aria-selected="false">
+                            <i class="fas fa-hiking me-2"></i>Activities
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" type="button" role="tab" aria-controls="reviews" aria-selected="false">
+                            <i class="fas fa-star me-2"></i>Reviews
+                        </button>
+                    </li>
+                </ul>
+
+                <!-- Tabs Content -->
+                <div class="tab-content" id="destinationTabContent">
+                    <!-- Overview Tab -->
+                    <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
+                        <h3 class="mb-4">About {{ destination.name }}</h3>
+                        <p>{{ destination.description|linebreaks }}</p>
+
+                        <h4 class="mt-5 mb-4">Highlights</h4>
+                        <div class="row">
+                            <div class="col-md-6">
+                                {% with destination.highlights|split:"\n" as highlights_list %}
+                                    {% for highlight in highlights_list %}
+                                        {% if forloop.counter0|divisibleby:2 %}
+                                            <div class="highlight-item">
+                                                <i class="fas fa-check-circle"></i>
+                                                <p>{{ highlight }}</p>
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endwith %}
+                            </div>
+                            <div class="col-md-6">
+                                {% with destination.highlights|split:"\n" as highlights_list %}
+                                    {% for highlight in highlights_list %}
+                                        {% if not forloop.counter0|divisibleby:2 %}
+                                            <div class="highlight-item">
+                                                <i class="fas fa-check-circle"></i>
+                                                <p>{{ highlight }}</p>
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endwith %}
+                            </div>
+                        </div>
+
+                        <h4 class="mt-5 mb-4">Best Time to Visit</h4>
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-calendar-alt fa-2x text-primary me-3"></i>
+                                    <div>
+                                        <h5 class="mb-1">Recommended Season</h5>
+                                        <p class="mb-0">{{ destination.best_time_to_visit }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Accommodations Tab -->
+                    <div class="tab-pane fade" id="accommodations" role="tabpanel" aria-labelledby="accommodations-tab">
+                        <h3 class="mb-4">Where to Stay in {{ destination.name }}</h3>
+                        <div class="row">
+                            {% if accommodations %}
+                                {% for accommodation in accommodations %}
+                                    <div class="col-md-6 mb-4">
+                                        <div class="accommodation-card">
+                                            <img src="{% if accommodation.image %}{{ accommodation.image.url }}{% else %}{% static 'images/accommodations/placeholder.jpg' %}{% endif %}" class="card-img-top" alt="{{ accommodation.name }}">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                                    <h5 class="card-title mb-0">{{ accommodation.name }}</h5>
+                                                    <span class="badge bg-info">{{ accommodation.get_type_display }}</span>
+                                                </div>
+                                                <p class="card-text">{{ accommodation.description|truncatewords:20 }}</p>
+                                                <h6 class="mb-3">Amenities:</h6>
+                                                <div class="d-flex flex-wrap mb-3">
+                                                    {% with accommodation.amenities|split:"\n" as amenities_list %}
+                                                        {% for amenity in amenities_list %}
+                                                            <span class="badge bg-light text-dark me-2 mb-2">{{ amenity }}</span>
+                                                        {% endfor %}
+                                                    {% endwith %}
+                                                </div>
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <div class="price fw-bold">
+                                                        <i class="fas fa-tag text-primary me-1"></i> ${{ accommodation.price_per_night }} / night
+                                                    </div>
+                                                    <a href="{% url 'accommodation_detail' pk=accommodation.pk %}" class="btn btn-sm btn-primary">
+                                                        View Details
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="col-12">
+                                    <div class="alert alert-info">
+                                        <p>No accommodations available for this destination yet. Check back soon!</p>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Activities Tab -->
+                    <div class="tab-pane fade" id="activities" role="tabpanel" aria-labelledby="activities-tab">
+                        <h3 class="mb-4">Things to Do in {{ destination.name }}</h3>
+                        <div class="row">
+                            {% if activities %}
+                                {% for activity in activities %}
+                                    <div class="col-md-6 mb-4">
+                                        <div class="activity-card">
+                                            <img src="{% if activity.image %}{{ activity.image.url }}{% else %}{% static 'images/activities/placeholder.jpg' %}{% endif %}" class="card-img-top" alt="{{ activity.name }}">
+                                            <div class="card-body">
+                                                <h5 class="card-title">{{ activity.name }}</h5>
+                                                <p class="card-text">{{ activity.description|truncatewords:20 }}</p>
+                                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                                    <div>
+                                                        <i class="fas fa-clock text-primary me-1"></i> {{ activity.duration }}
+                                                    </div>
+                                                    <div class="price fw-bold">
+                                                        <i class="fas fa-tag text-primary me-1"></i> ${{ activity.price }}
+                                                    </div>
+                                                </div>
+                                                <a href="{% url 'activity_detail' pk=activity.pk %}" class="btn btn-sm btn-primary w-100">
+                                                    View Details
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="col-12">
+                                    <div class="alert alert-info">
+                                        <p>No activities available for this destination yet. Check back soon!</p>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Reviews Tab -->
+                    <div class="tab-pane fade" id="reviews" role="tabpanel" aria-labelledby="reviews-tab">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h3 class="mb-0">Traveler Reviews</h3>
+                            <a href="#" class="btn btn-primary">
+                                <i class="fas fa-edit me-2"></i> Write a Review
+                            </a>
+                        </div>
+
+                        {% if reviews %}
+                            {% for review in reviews %}
+                                <div class="review-card">
+                                    <div class="review-header">
+                                        <img src="{% static 'images/team/team-1.jpg' %}" alt="{{ review.user.username }}">
+                                        <div>
+                                            <h5 class="mb-0">{{ review.user.get_full_name|default:review.user.username }}</h5>
+                                            <div class="stars">
+                                                {{ review.rating|star_rating }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="review-body">
+                                        <h5>{{ review.title }}</h5>
+                                        <p>{{ review.content }}</p>
+                                    </div>
+                                    <div class="review-footer">
+                                        <i class="far fa-calendar-alt me-1"></i> {{ review.created_at|date:"F d, Y" }}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="alert alert-info">
+                                <p>No reviews yet. Be the first to share your experience!</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+
+
+                <!-- Weather Widget -->
+                <div class="weather-widget">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="weather-icon me-3">
+                            <i class="fas fa-sun"></i>
+                        </div>
+                        <div>
+                            <h5 class="mb-0">Current Weather</h5>
+                            <p class="mb-0">{{ destination.name }}, {{ destination.country }}</p>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h3 class="mb-0">28°C</h3>
+                            <p class="mb-0">Sunny</p>
+                        </div>
+                        <div>
+                            <p class="mb-0"><i class="fas fa-wind me-1"></i> 10 km/h</p>
+                            <p class="mb-0"><i class="fas fa-tint me-1"></i> 20%</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Map -->
+                <div class="map-container">
+                    <div class="bg-secondary d-flex align-items-center justify-content-center h-100">
+                        <p class="text-white">Map Placeholder - In a real project, this would be an embedded Google Map</p>
+                    </div>
+                </div>
+
+                <!-- Similar Destinations -->
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Similar Destinations</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <div class="d-flex align-items-center">
+                                    <img src="{% static 'images/destinations/bali.jpg' %}" alt="Bali" class="rounded me-3" style="width: 60px; height: 60px; object-fit: cover;">
+                                    <div>
+                                        <h6 class="mb-0">Bali</h6>
+                                        <small class="text-muted">Indonesia</small>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="list-group-item">
+                                <div class="d-flex align-items-center">
+                                    <img src="{% static 'images/destinations/santorini.jpg' %}" alt="Santorini" class="rounded me-3" style="width: 60px; height: 60px; object-fit: cover;">
+                                    <div>
+                                        <h6 class="mb-0">Santorini</h6>
+                                        <small class="text-muted">Greece</small>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="list-group-item">
+                                <div class="d-flex align-items-center">
+                                    <img src="{% static 'images/destinations/maldives.jpg' %}" alt="Maldives" class="rounded me-3" style="width: 60px; height: 60px; object-fit: cover;">
+                                    <div>
+                                        <h6 class="mb-0">Maldives</h6>
+                                        <small class="text-muted">Maldives</small>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+{% endblock %}

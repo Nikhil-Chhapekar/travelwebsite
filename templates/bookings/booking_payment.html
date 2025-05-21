@@ -1,0 +1,506 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Payment - Discovering Paradise{% endblock %}
+
+{% block extra_css %}
+<style>
+    .payment-header {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 3rem 0;
+    }
+
+    .payment-form-container {
+        background-color: white;
+        border-radius: var(--border-radius);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        margin-top: -30px;
+        position: relative;
+        z-index: 10;
+    }
+
+    .payment-form-section {
+        margin-bottom: 2rem;
+        padding-bottom: 2rem;
+        border-bottom: 1px solid #eee;
+    }
+
+    .payment-form-section:last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+    }
+
+    .payment-form-section-title {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .payment-form-section-title .icon {
+        width: 40px;
+        height: 40px;
+        background-color: rgba(var(--primary-rgb), 0.1);
+        color: var(--primary-color);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+    }
+
+    .payment-form-section-title h3 {
+        margin-bottom: 0;
+    }
+
+    .payment-method-option {
+        border: 2px solid #eee;
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .payment-method-option:hover {
+        border-color: var(--primary-color);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .payment-method-option.selected {
+        border-color: var(--primary-color);
+        background-color: rgba(var(--primary-rgb), 0.05);
+    }
+
+    .payment-method-option .option-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .payment-method-option .option-header .icon {
+        width: 40px;
+        height: 40px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        font-size: 1.5rem;
+    }
+
+    .payment-method-option .option-header h4 {
+        margin-bottom: 0;
+    }
+
+    .payment-method-option .form-check {
+        margin-top: 1rem;
+    }
+
+    .card-input-container {
+        border: 1px solid #ced4da;
+        border-radius: var(--border-radius);
+        padding: 1rem;
+        margin-top: 1rem;
+    }
+
+    .card-input-container .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .card-input-container .card-header .card-icons img {
+        height: 24px;
+        margin-left: 0.5rem;
+    }
+
+    .booking-summary {
+        background-color: #f8f9fa;
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        position: sticky;
+        top: 100px;
+    }
+
+    .booking-summary h4 {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .booking-summary .summary-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.75rem;
+    }
+
+    .booking-summary .summary-item .label {
+        color: #6c757d;
+    }
+
+    .booking-summary .summary-item .value {
+        font-weight: 600;
+    }
+
+    .booking-summary .total {
+        margin-top: 1.5rem;
+        padding-top: 1rem;
+        border-top: 2px solid #dee2e6;
+        font-size: 1.2rem;
+        font-weight: 700;
+    }
+
+    .booking-summary .btn-pay {
+        margin-top: 1.5rem;
+    }
+
+    .form-check-input:checked {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+
+    .secure-payment-info {
+        display: flex;
+        align-items: center;
+        margin-top: 1rem;
+        padding: 0.75rem;
+        background-color: #f8f9fa;
+        border-radius: var(--border-radius);
+    }
+
+    .secure-payment-info i {
+        color: #28a745;
+        font-size: 1.2rem;
+        margin-right: 0.75rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Payment Header -->
+<header class="payment-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 mx-auto text-center">
+                <h1 class="display-4 mb-3">Payment</h1>
+                <p class="lead">Complete your payment to confirm your booking</p>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Payment Form -->
+<section class="py-5">
+    <div class="container">
+        <form method="post" id="payment-form">
+            {% csrf_token %}
+
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="payment-form-container">
+                        <!-- Payment Method Selection -->
+                        <div class="payment-form-section">
+                            <div class="payment-form-section-title">
+                                <div class="icon">
+                                    <i class="fas fa-credit-card"></i>
+                                </div>
+                                <h3>Payment Method</h3>
+                            </div>
+
+                            <div class="payment-method-options">
+                                <div class="payment-method-option selected" data-method="credit_card">
+                                    <div class="option-header">
+                                        <div class="icon">
+                                            <i class="fas fa-credit-card"></i>
+                                        </div>
+                                        <h4>Credit Card</h4>
+                                    </div>
+                                    <p>Pay securely with your credit card.</p>
+                                    <div class="form-check">
+                                        <input class="form-check-input payment-method-radio" type="radio" name="payment_method" id="payment_method_credit_card" value="credit_card" checked>
+                                        <label class="form-check-label" for="payment_method_credit_card">
+                                            Pay with Credit Card
+                                        </label>
+                                    </div>
+
+                                    <div class="card-input-container">
+                                        <div class="card-header">
+                                            <h5 class="mb-0">Card Details</h5>
+                                            <div class="card-icons">
+                                                <img src="{% static 'images/payment/visa.png' %}" alt="Visa">
+                                                <img src="{% static 'images/payment/mastercard.png' %}" alt="Mastercard">
+                                                <img src="{% static 'images/payment/amex.png' %}" alt="American Express">
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-12 mb-3">
+                                                <label for="{{ form.card_number.id_for_label }}" class="form-label">Card Number</label>
+                                                {{ form.card_number }}
+                                                {% if form.card_number.errors %}
+                                                    <div class="text-danger mt-1">
+                                                        {{ form.card_number.errors }}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-12 mb-3">
+                                                <label for="{{ form.card_holder.id_for_label }}" class="form-label">Card Holder Name</label>
+                                                {{ form.card_holder }}
+                                                {% if form.card_holder.errors %}
+                                                    <div class="text-danger mt-1">
+                                                        {{ form.card_holder.errors }}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="{{ form.expiry_date.id_for_label }}" class="form-label">Expiry Date (MM/YY)</label>
+                                                {{ form.expiry_date }}
+                                                {% if form.expiry_date.errors %}
+                                                    <div class="text-danger mt-1">
+                                                        {{ form.expiry_date.errors }}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="{{ form.cvv.id_for_label }}" class="form-label">CVV</label>
+                                                {{ form.cvv }}
+                                                {% if form.cvv.errors %}
+                                                    <div class="text-danger mt-1">
+                                                        {{ form.cvv.errors }}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="payment-method-option" data-method="paypal">
+                                    <div class="option-header">
+                                        <div class="icon">
+                                            <i class="fab fa-paypal"></i>
+                                        </div>
+                                        <h4>PayPal</h4>
+                                    </div>
+                                    <p>Pay securely with your PayPal account.</p>
+                                    <div class="form-check">
+                                        <input class="form-check-input payment-method-radio" type="radio" name="payment_method" id="payment_method_paypal" value="paypal">
+                                        <label class="form-check-label" for="payment_method_paypal">
+                                            Pay with PayPal
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="payment-method-option" data-method="bank_transfer">
+                                    <div class="option-header">
+                                        <div class="icon">
+                                            <i class="fas fa-university"></i>
+                                        </div>
+                                        <h4>Bank Transfer</h4>
+                                    </div>
+                                    <p>Pay via bank transfer. Your booking will be confirmed after payment is received.</p>
+                                    <div class="form-check">
+                                        <input class="form-check-input payment-method-radio" type="radio" name="payment_method" id="payment_method_bank_transfer" value="bank_transfer">
+                                        <label class="form-check-label" for="payment_method_bank_transfer">
+                                            Pay with Bank Transfer
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="secure-payment-info">
+                                <i class="fas fa-lock"></i>
+                                <p class="mb-0">Your payment information is secure. We use industry-standard encryption to protect your data.</p>
+                            </div>
+                        </div>
+
+                        <!-- Billing Information -->
+                        <div class="payment-form-section">
+                            <div class="payment-form-section-title">
+                                <div class="icon">
+                                    <i class="fas fa-file-invoice"></i>
+                                </div>
+                                <h3>Billing Information</h3>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="billing_first_name" class="form-label">First Name</label>
+                                    <input type="text" class="form-control" id="billing_first_name" name="billing_first_name" value="{{ request.user.first_name }}" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="billing_last_name" class="form-label">Last Name</label>
+                                    <input type="text" class="form-control" id="billing_last_name" name="billing_last_name" value="{{ request.user.last_name }}" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="billing_email" class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="billing_email" name="billing_email" value="{{ request.user.email }}" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="billing_phone" class="form-label">Phone</label>
+                                    <input type="tel" class="form-control" id="billing_phone" name="billing_phone" required>
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label for="billing_address" class="form-label">Address</label>
+                                    <input type="text" class="form-control" id="billing_address" name="billing_address" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="billing_city" class="form-label">City</label>
+                                    <input type="text" class="form-control" id="billing_city" name="billing_city" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="billing_country" class="form-label">Country</label>
+                                    <select class="form-select" id="billing_country" name="billing_country" required>
+                                        <option value="">Select Country</option>
+                                        <option value="US">United States</option>
+                                        <option value="CA">Canada</option>
+                                        <option value="GB">United Kingdom</option>
+                                        <option value="AU">Australia</option>
+                                        <option value="DE">Germany</option>
+                                        <option value="FR">France</option>
+                                        <option value="IT">Italy</option>
+                                        <option value="ES">Spain</option>
+                                        <option value="JP">Japan</option>
+                                        <option value="CN">China</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="billing_state" class="form-label">State/Province</label>
+                                    <input type="text" class="form-control" id="billing_state" name="billing_state" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="billing_zip" class="form-label">ZIP/Postal Code</label>
+                                    <input type="text" class="form-control" id="billing_zip" name="billing_zip" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="booking-summary">
+                        <h4>Payment Summary</h4>
+                        <div class="summary-item">
+                            <span class="label">Booking ID</span>
+                            <span class="value">{{ booking.booking_id }}</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">Destination</span>
+                            <span class="value">{{ booking.destination.name }}</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">Accommodation</span>
+                            <span class="value">{{ booking.accommodation.name }}</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">Check-in</span>
+                            <span class="value">{{ booking.start_date|date:"M d, Y" }}</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">Check-out</span>
+                            <span class="value">{{ booking.end_date|date:"M d, Y" }}</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">Guests</span>
+                            <span class="value">{{ booking.adults }} Adult{% if booking.adults > 1 %}s{% endif %}{% if booking.children %}, {{ booking.children }} Child{% if booking.children > 1 %}ren{% endif %}{% endif %}</span>
+                        </div>
+                        <div class="summary-item total">
+                            <span class="label">Total</span>
+                            <span class="value">${{ booking.total_price }}</span>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg w-100 btn-pay">
+                            <i class="fas fa-lock me-2"></i> Pay Now
+                        </button>
+                        <div class="form-text text-center mt-2">
+                            By clicking "Pay Now", you agree to our <a href="{% url 'terms' %}">Terms and Conditions</a> and <a href="{% url 'privacy_policy' %}">Privacy Policy</a>.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Payment method selection
+        const paymentMethodOptions = document.querySelectorAll('.payment-method-option');
+        const paymentMethodRadios = document.querySelectorAll('.payment-method-radio');
+
+        paymentMethodRadios.forEach(function(radio, index) {
+            radio.addEventListener('change', function() {
+                paymentMethodOptions.forEach(option => option.classList.remove('selected'));
+                paymentMethodOptions[index].classList.add('selected');
+            });
+        });
+
+        // Card number formatting
+        const cardNumberInput = document.getElementById('{{ form.card_number.id_for_label }}');
+        if (cardNumberInput) {
+            cardNumberInput.addEventListener('input', function(e) {
+                // Remove non-digits
+                let value = this.value.replace(/\D/g, '');
+
+                // Limit to 16 digits
+                if (value.length > 16) {
+                    value = value.slice(0, 16);
+                }
+
+                // Format with spaces
+                let formattedValue = '';
+                for (let i = 0; i < value.length; i++) {
+                    if (i > 0 && i % 4 === 0) {
+                        formattedValue += ' ';
+                    }
+                    formattedValue += value[i];
+                }
+
+                this.value = formattedValue;
+            });
+        }
+
+        // Expiry date formatting
+        const expiryDateInput = document.getElementById('{{ form.expiry_date.id_for_label }}');
+        if (expiryDateInput) {
+            expiryDateInput.addEventListener('input', function(e) {
+                // Remove non-digits
+                let value = this.value.replace(/\D/g, '');
+
+                // Limit to 4 digits
+                if (value.length > 4) {
+                    value = value.slice(0, 4);
+                }
+
+                // Format with slash
+                if (value.length > 2) {
+                    value = value.slice(0, 2) + '/' + value.slice(2);
+                }
+
+                this.value = value;
+            });
+        }
+
+        // CVV formatting
+        const cvvInput = document.getElementById('{{ form.cvv.id_for_label }}');
+        if (cvvInput) {
+            cvvInput.addEventListener('input', function(e) {
+                // Remove non-digits
+                let value = this.value.replace(/\D/g, '');
+
+                // Limit to 3 digits
+                if (value.length > 3) {
+                    value = value.slice(0, 3);
+                }
+
+                this.value = value;
+            });
+        }
+    });
+</script>
+{% endblock %}

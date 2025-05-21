@@ -1,0 +1,239 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Register - Discovering Paradise{% endblock %}
+
+{% block extra_css %}
+<style>
+    .auth-section {
+        background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('{% static "images/backgrounds/hero-bg.jpg" %}');
+        background-size: cover;
+        background-position: center;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 0;
+    }
+    
+    .auth-card {
+        background-color: white;
+        border-radius: var(--border-radius);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        max-width: 600px;
+        width: 100%;
+    }
+    
+    .auth-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        color: white;
+        padding: 2rem;
+        text-align: center;
+    }
+    
+    .auth-header h1 {
+        margin-bottom: 0.5rem;
+        font-weight: 700;
+    }
+    
+    .auth-body {
+        padding: 2.5rem;
+    }
+    
+    .auth-form .form-control {
+        height: 50px;
+        font-size: 1rem;
+    }
+    
+    .auth-form .btn {
+        height: 50px;
+        font-size: 1rem;
+        font-weight: 600;
+    }
+    
+    .auth-footer {
+        text-align: center;
+        padding: 1.5rem;
+        background-color: #f8f9fa;
+        border-top: 1px solid #eee;
+    }
+    
+    .social-login {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .social-login a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin: 0 0.5rem;
+        color: white;
+        transition: all 0.3s ease;
+    }
+    
+    .social-login a:hover {
+        transform: translateY(-3px);
+    }
+    
+    .social-login .facebook {
+        background-color: #3b5998;
+    }
+    
+    .social-login .google {
+        background-color: #dd4b39;
+    }
+    
+    .social-login .twitter {
+        background-color: #1da1f2;
+    }
+    
+    .form-text {
+        font-size: 0.85rem;
+    }
+    
+    .errorlist {
+        color: #dc3545;
+        padding-left: 0;
+        list-style: none;
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="auth-card">
+                    <div class="auth-header">
+                        <h1>Create Account</h1>
+                        <p>Join Discovering Paradise and start your journey</p>
+                    </div>
+                    <div class="auth-body">
+                        <form method="post" class="auth-form">
+                            {% csrf_token %}
+                            
+                            {% if form.non_field_errors %}
+                                <div class="alert alert-danger">
+                                    {% for error in form.non_field_errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            
+                            <div class="mb-3">
+                                <label for="{{ form.username.id_for_label }}" class="form-label">Username</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0">
+                                        <i class="fas fa-user text-primary"></i>
+                                    </span>
+                                    {{ form.username }}
+                                </div>
+                                {% if form.username.errors %}
+                                    <ul class="errorlist">
+                                        {% for error in form.username.errors %}
+                                            <li>{{ error }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                {% endif %}
+                                {% if form.username.help_text %}
+                                    <div class="form-text">{{ form.username.help_text }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0">
+                                        <i class="fas fa-envelope text-primary"></i>
+                                    </span>
+                                    {{ form.email }}
+                                </div>
+                                {% if form.email.errors %}
+                                    <ul class="errorlist">
+                                        {% for error in form.email.errors %}
+                                            <li>{{ error }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="{{ form.password1.id_for_label }}" class="form-label">Password</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0">
+                                        <i class="fas fa-lock text-primary"></i>
+                                    </span>
+                                    {{ form.password1 }}
+                                </div>
+                                {% if form.password1.errors %}
+                                    <ul class="errorlist">
+                                        {% for error in form.password1.errors %}
+                                            <li>{{ error }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                {% endif %}
+                                {% if form.password1.help_text %}
+                                    <div class="form-text">{{ form.password1.help_text }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="{{ form.password2.id_for_label }}" class="form-label">Confirm Password</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0">
+                                        <i class="fas fa-lock text-primary"></i>
+                                    </span>
+                                    {{ form.password2 }}
+                                </div>
+                                {% if form.password2.errors %}
+                                    <ul class="errorlist">
+                                        {% for error in form.password2.errors %}
+                                            <li>{{ error }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                {% endif %}
+                                {% if form.password2.help_text %}
+                                    <div class="form-text">{{ form.password2.help_text }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-4 form-check">
+                                <input class="form-check-input" type="checkbox" id="terms" required>
+                                <label class="form-check-label" for="terms">
+                                    I agree to the <a href="#" class="text-primary">Terms of Service</a> and <a href="#" class="text-primary">Privacy Policy</a>
+                                </label>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary w-100">Create Account</button>
+                        </form>
+                    </div>
+                    <div class="auth-footer">
+                        <p class="mb-3">Or sign up with</p>
+                        <div class="social-login">
+                            <a href="#" class="facebook">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            <a href="#" class="google">
+                                <i class="fab fa-google"></i>
+                            </a>
+                            <a href="#" class="twitter">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                        </div>
+                        <p class="mb-0">Already have an account? <a href="{% url 'login' %}" class="text-primary">Sign in</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

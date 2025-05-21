@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Terms of Service - Discovering Paradise{% endblock %}
+
+{% block extra_css %}
+<style>
+    .terms-header {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 3rem 0;
+    }
+    
+    .terms-content {
+        background-color: white;
+        border-radius: var(--border-radius);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        padding: 2rem;
+        margin-top: -30px;
+        position: relative;
+        z-index: 10;
+    }
+    
+    .terms-content h2 {
+        color: var(--primary-color);
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+    }
+    
+    .terms-content h3 {
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .terms-content p {
+        margin-bottom: 1rem;
+    }
+    
+    .terms-content ul {
+        margin-bottom: 1rem;
+    }
+    
+    .terms-content li {
+        margin-bottom: 0.5rem;
+    }
+    
+    .last-updated {
+        font-style: italic;
+        color: #6c757d;
+        margin-bottom: 2rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Terms Header -->
+<header class="terms-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 mx-auto text-center">
+                <h1 class="display-4 mb-3">Terms of Service</h1>
+                <p class="lead">Please read these terms carefully before using our services</p>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Terms Content -->
+<section class="py-5">
+    <div class="container">
+        <div class="terms-content">
+            <p class="last-updated">Last Updated: April 27, 2025</p>
+            
+            <h2>1. Introduction</h2>
+            <p>Welcome to Discovering Paradise. These Terms of Service ("Terms") govern your use of our website, products, and services. By accessing or using our services, you agree to be bound by these Terms. If you do not agree to these Terms, please do not use our services.</p>
+            
+            <h2>2. Definitions</h2>
+            <p>Throughout these Terms, the following definitions apply:</p>
+            <ul>
+                <li><strong>"We", "Us", "Our"</strong> refers to Discovering Paradise.</li>
+                <li><strong>"You", "Your"</strong> refers to the individual or entity using our services.</li>
+                <li><strong>"Services"</strong> refers to our website, booking platform, and all related services.</li>
+                <li><strong>"Content"</strong> refers to all information, text, images, data, links, software, or other material that we provide through our services.</li>
+            </ul>
+            
+            <h2>3. Account Registration</h2>
+            <p>To access certain features of our services, you may need to register for an account. You agree to provide accurate, current, and complete information during the registration process and to update such information to keep it accurate, current, and complete.</p>
+            <p>You are responsible for safeguarding your account credentials and for all activities that occur under your account. You agree to notify us immediately of any unauthorized use of your account.</p>
+            
+            <h2>4. Booking and Cancellation Policy</h2>
+            <h3>4.1 Booking</h3>
+            <p>When you make a booking through our services, you agree to pay all charges associated with your booking. All bookings are subject to availability and confirmation.</p>
+            
+            <h3>4.2 Cancellation</h3>
+            <p>Our cancellation policy is as follows:</p>
+            <ul>
+                <li>Cancellations made more than 30 days before check-in date: 100% refund</li>
+                <li>Cancellations made 15-30 days before check-in date: 75% refund</li>
+                <li>Cancellations made 7-14 days before check-in date: 50% refund</li>
+                <li>Cancellations made less than 7 days before check-in date: No refund</li>
+            </ul>
+            <p>Refunds will be processed to the original payment method and may take 5-10 business days to appear in your account.</p>
+            
+            <h2>5. User Conduct</h2>
+            <p>You agree not to use our services to:</p>
+            <ul>
+                <li>Violate any applicable laws or regulations</li>
+                <li>Infringe the rights of others</li>
+                <li>Engage in any activity that could harm our services or interfere with other users</li>
+                <li>Attempt to gain unauthorized access to our services or systems</li>
+                <li>Use our services for any illegal or unauthorized purpose</li>
+            </ul>
+            
+            <h2>6. Intellectual Property</h2>
+            <p>All content, features, and functionality of our services, including but not limited to text, graphics, logos, icons, images, audio clips, digital downloads, data compilations, and software, are the exclusive property of Discovering Paradise or our licensors and are protected by copyright, trademark, and other intellectual property laws.</p>
+            
+            <h2>7. Limitation of Liability</h2>
+            <p>To the maximum extent permitted by law, in no event shall Discovering Paradise, its affiliates, or their licensors, service providers, employees, agents, officers, or directors be liable for damages of any kind, under any legal theory, arising out of or in connection with your use, or inability to use, our services, including any direct, indirect, special, incidental, consequential, or punitive damages.</p>
+            
+            <h2>8. Indemnification</h2>
+            <p>You agree to defend, indemnify, and hold harmless Discovering Paradise, its affiliates, licensors, and service providers, and its and their respective officers, directors, employees, contractors, agents, licensors, suppliers, successors, and assigns from and against any claims, liabilities, damages, judgments, awards, losses, costs, expenses, or fees (including reasonable attorneys' fees) arising out of or relating to your violation of these Terms or your use of the services.</p>
+            
+            <h2>9. Changes to Terms</h2>
+            <p>We may revise and update these Terms from time to time in our sole discretion. All changes are effective immediately when we post them. Your continued use of the services following the posting of revised Terms means that you accept and agree to the changes.</p>
+            
+            <h2>10. Governing Law</h2>
+            <p>These Terms and your use of the services shall be governed by and construed in accordance with the laws of the jurisdiction in which Discovering Paradise is established, without regard to its conflict of law provisions.</p>
+            
+            <h2>11. Contact Information</h2>
+            <p>If you have any questions about these Terms, please contact us:</p>
+            <ul>
+                <li>By email: legal@discoveringparadise.com</li>
+                <li>By phone: +1 (555) 123-4567</li>
+                <li>By mail: 123 Travel Street, Paradise City, PC 12345</li>
+            </ul>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Contact Us - Discovering Paradise{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="bg-primary text-white py-5">
+    <div class="container">
+        <h1 class="display-4">Contact Us</h1>
+        <p class="lead">We'd love to hear from you! Get in touch with our team.</p>
+    </div>
+</div>
+
+<!-- Contact Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card shadow">
+                    <div class="card-body p-4">
+                        <h3 class="card-title mb-4">Send Us a Message</h3>
+                        
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                        
+                        <form method="post">
+                            {% csrf_token %}
+                            
+                            <div class="mb-3">
+                                <label for="{{ form.name.id_for_label }}" class="form-label">Your Name</label>
+                                {{ form.name }}
+                                {% if form.name.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.name.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="{{ form.email.id_for_label }}" class="form-label">Your Email</label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.email.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="{{ form.subject.id_for_label }}" class="form-label">Subject</label>
+                                {{ form.subject }}
+                                {% if form.subject.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.subject.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="{{ form.message.id_for_label }}" class="form-label">Message</label>
+                                {{ form.message }}
+                                {% if form.message.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.message.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-primary btn-lg">Send Message</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 mt-4 mt-lg-0">
+                <div class="card shadow mb-4">
+                    <div class="card-body">
+                        <h4 class="card-title mb-4">Contact Information</h4>
+                        <ul class="list-unstyled">
+                            <li class="mb-3">
+                                <i class="fas fa-map-marker-alt text-primary me-2"></i>
+                                <span>123 Travel Street, Paradise City, PC 12345</span>
+                            </li>
+                            <li class="mb-3">
+                                <i class="fas fa-phone text-primary me-2"></i>
+                                <span>+1 (555) 123-4567</span>
+                            </li>
+                            <li class="mb-3">
+                                <i class="fas fa-envelope text-primary me-2"></i>
+                                <span>info@discoveringparadise.com</span>
+                            </li>
+                            <li>
+                                <i class="fas fa-clock text-primary me-2"></i>
+                                <span>Monday - Friday: 9:00 AM - 6:00 PM</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="card shadow">
+                    <div class="card-body">
+                        <h4 class="card-title mb-4">Connect With Us</h4>
+                        <div class="social-icons d-flex">
+                            <a href="#" class="btn btn-outline-primary me-2"><i class="fab fa-facebook-f"></i></a>
+                            <a href="#" class="btn btn-outline-primary me-2"><i class="fab fa-twitter"></i></a>
+                            <a href="#" class="btn btn-outline-primary me-2"><i class="fab fa-instagram"></i></a>
+                            <a href="#" class="btn btn-outline-primary me-2"><i class="fab fa-linkedin-in"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Map Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <h3 class="text-center mb-4">Find Us On The Map</h3>
+        <div class="ratio ratio-21x9">
+            <!-- Replace with actual Google Maps embed code in a real project -->
+            <div class="bg-secondary d-flex align-items-center justify-content-center">
+                <p class="text-white">Map Placeholder - In a real project, this would be an embedded Google Map</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="py-5">
+    <div class="container">
+        <h3 class="text-center mb-5">Frequently Asked Questions</h3>
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="accordion" id="contactFAQ">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingOne">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                How quickly can I expect a response to my inquiry?
+                            </button>
+                        </h2>
+                        <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#contactFAQ">
+                            <div class="accordion-body">
+                                We strive to respond to all inquiries within 24 hours during business days. For urgent matters, please call our customer service line.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingTwo">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                Can I visit your office in person?
+                            </button>
+                        </h2>
+                        <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#contactFAQ">
+                            <div class="accordion-body">
+                                Yes, you're welcome to visit our office during business hours. We recommend scheduling an appointment in advance to ensure that a travel consultant is available to assist you.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingThree">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                How can I provide feedback about my travel experience?
+                            </button>
+                        </h2>
+                        <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#contactFAQ">
+                            <div class="accordion-body">
+                                We value your feedback! You can share your experience by writing a review on your destination page, or by contacting us directly through this form. Your insights help us improve our services and assist other travelers.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,253 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Profile - Discovering Paradise{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-header {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 3rem 0;
+    }
+    
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid white;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .profile-form-container {
+        background-color: white;
+        border-radius: var(--border-radius);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        padding: 2rem;
+        margin-top: -30px;
+        position: relative;
+        z-index: 10;
+    }
+    
+    .avatar-upload {
+        position: relative;
+        max-width: 150px;
+        margin: 0 auto 2rem;
+    }
+    
+    .avatar-upload .avatar-edit {
+        position: absolute;
+        right: 5px;
+        bottom: 5px;
+        z-index: 1;
+    }
+    
+    .avatar-upload .avatar-edit input {
+        display: none;
+    }
+    
+    .avatar-upload .avatar-edit label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: var(--primary-color);
+        color: white;
+        cursor: pointer;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+    
+    .avatar-upload .avatar-preview {
+        width: 150px;
+        height: 150px;
+        position: relative;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 4px solid white;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .avatar-upload .avatar-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .form-section {
+        margin-bottom: 2rem;
+        padding-bottom: 2rem;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .form-section:last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Profile Header -->
+<header class="profile-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-12 text-center">
+                <h1 class="mb-2">Edit Your Profile</h1>
+                <p>Update your personal information and preferences</p>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Edit Profile Form -->
+<div class="container">
+    <div class="profile-form-container">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="avatar-upload mb-5">
+                <div class="avatar-edit">
+                    <input type="file" id="id_avatar" name="avatar" accept=".png, .jpg, .jpeg">
+                    <label for="id_avatar">
+                        <i class="fas fa-camera"></i>
+                    </label>
+                </div>
+                <div class="avatar-preview">
+                    {% if profile.avatar %}
+                        <img src="{{ profile.avatar.url }}" alt="{{ request.user.username }}">
+                    {% else %}
+                        <img src="{% static 'images/default-profile.jpg' %}" alt="{{ request.user.username }}">
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h4 class="mb-4">Personal Information</h4>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_first_name" class="form-label">First Name</label>
+                        <input type="text" class="form-control" id="id_first_name" name="first_name" value="{{ request.user.first_name }}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="id_last_name" class="form-label">Last Name</label>
+                        <input type="text" class="form-control" id="id_last_name" name="last_name" value="{{ request.user.last_name }}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="id_email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="id_email" name="email" value="{{ request.user.email }}" readonly>
+                        <div class="form-text">To change your email, please contact support.</div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="id_phone" class="form-label">Phone Number</label>
+                        <input type="tel" class="form-control" id="id_phone" name="phone" value="{{ profile.phone }}">
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        <label for="id_location" class="form-label">Location</label>
+                        <input type="text" class="form-control" id="id_location" name="location" value="{{ profile.location }}">
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        <label for="id_bio" class="form-label">Bio</label>
+                        <textarea class="form-control" id="id_bio" name="bio" rows="4">{{ profile.bio }}</textarea>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h4 class="mb-4">Travel Preferences</h4>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_preferred_currency" class="form-label">Preferred Currency</label>
+                        <select class="form-select" id="id_preferred_currency" name="preferred_currency">
+                            <option value="USD" {% if profile.preferred_currency == 'USD' %}selected{% endif %}>USD ($)</option>
+                            <option value="EUR" {% if profile.preferred_currency == 'EUR' %}selected{% endif %}>EUR (€)</option>
+                            <option value="GBP" {% if profile.preferred_currency == 'GBP' %}selected{% endif %}>GBP (£)</option>
+                            <option value="JPY" {% if profile.preferred_currency == 'JPY' %}selected{% endif %}>JPY (¥)</option>
+                            <option value="AUD" {% if profile.preferred_currency == 'AUD' %}selected{% endif %}>AUD ($)</option>
+                            <option value="CAD" {% if profile.preferred_currency == 'CAD' %}selected{% endif %}>CAD ($)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="id_preferred_language" class="form-label">Preferred Language</label>
+                        <select class="form-select" id="id_preferred_language" name="preferred_language">
+                            <option value="en" {% if profile.preferred_language == 'en' %}selected{% endif %}>English</option>
+                            <option value="es" {% if profile.preferred_language == 'es' %}selected{% endif %}>Spanish</option>
+                            <option value="fr" {% if profile.preferred_language == 'fr' %}selected{% endif %}>French</option>
+                            <option value="de" {% if profile.preferred_language == 'de' %}selected{% endif %}>German</option>
+                            <option value="it" {% if profile.preferred_language == 'it' %}selected{% endif %}>Italian</option>
+                            <option value="ja" {% if profile.preferred_language == 'ja' %}selected{% endif %}>Japanese</option>
+                        </select>
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        <label class="form-label">Travel Interests</label>
+                        <div class="row">
+                            <div class="col-md-4 mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="interest_beach" name="interests" value="beach" {% if 'beach' in profile.interests %}checked{% endif %}>
+                                    <label class="form-check-label" for="interest_beach">Beach & Relaxation</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="interest_adventure" name="interests" value="adventure" {% if 'adventure' in profile.interests %}checked{% endif %}>
+                                    <label class="form-check-label" for="interest_adventure">Adventure & Outdoors</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="interest_culture" name="interests" value="culture" {% if 'culture' in profile.interests %}checked{% endif %}>
+                                    <label class="form-check-label" for="interest_culture">Culture & History</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="interest_food" name="interests" value="food" {% if 'food' in profile.interests %}checked{% endif %}>
+                                    <label class="form-check-label" for="interest_food">Food & Cuisine</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="interest_city" name="interests" value="city" {% if 'city' in profile.interests %}checked{% endif %}>
+                                    <label class="form-check-label" for="interest_city">City Exploration</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="interest_luxury" name="interests" value="luxury" {% if 'luxury' in profile.interests %}checked{% endif %}>
+                                    <label class="form-check-label" for="interest_luxury">Luxury Travel</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h4 class="mb-4">Notification Preferences</h4>
+                <div class="mb-3">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="email_notifications" name="email_notifications" {% if profile.email_notifications %}checked{% endif %}>
+                        <label class="form-check-label" for="email_notifications">Email Notifications</label>
+                    </div>
+                    <div class="form-text">Receive emails about your bookings, reviews, and account activity.</div>
+                </div>
+                <div class="mb-3">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="marketing_emails" name="marketing_emails" {% if profile.marketing_emails %}checked{% endif %}>
+                        <label class="form-check-label" for="marketing_emails">Marketing Emails</label>
+                    </div>
+                    <div class="form-text">Receive promotional emails about deals, offers, and travel inspiration.</div>
+                </div>
+            </div>
+            
+            <div class="d-flex justify-content-between">
+                <a href="{% url 'profile' %}" class="btn btn-outline-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

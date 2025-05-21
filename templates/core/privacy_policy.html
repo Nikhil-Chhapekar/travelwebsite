@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Privacy Policy - Discovering Paradise{% endblock %}
+
+{% block extra_css %}
+<style>
+    .privacy-header {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 3rem 0;
+    }
+    
+    .privacy-content {
+        background-color: white;
+        border-radius: var(--border-radius);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        padding: 2rem;
+        margin-top: -30px;
+        position: relative;
+        z-index: 10;
+    }
+    
+    .privacy-content h2 {
+        color: var(--primary-color);
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+    }
+    
+    .privacy-content h3 {
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .privacy-content p {
+        margin-bottom: 1rem;
+    }
+    
+    .privacy-content ul {
+        margin-bottom: 1rem;
+    }
+    
+    .privacy-content li {
+        margin-bottom: 0.5rem;
+    }
+    
+    .last-updated {
+        font-style: italic;
+        color: #6c757d;
+        margin-bottom: 2rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Privacy Policy Header -->
+<header class="privacy-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 mx-auto text-center">
+                <h1 class="display-4 mb-3">Privacy Policy</h1>
+                <p class="lead">How we collect, use, and protect your information</p>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Privacy Policy Content -->
+<section class="py-5">
+    <div class="container">
+        <div class="privacy-content">
+            <p class="last-updated">Last Updated: April 27, 2025</p>
+            
+            <h2>Introduction</h2>
+            <p>Welcome to Discovering Paradise. We respect your privacy and are committed to protecting your personal data. This privacy policy will inform you about how we look after your personal data when you visit our website and tell you about your privacy rights and how the law protects you.</p>
+            
+            <h2>Information We Collect</h2>
+            <p>We may collect, use, store and transfer different kinds of personal data about you which we have grouped together as follows:</p>
+            <ul>
+                <li><strong>Identity Data</strong> includes first name, last name, username or similar identifier.</li>
+                <li><strong>Contact Data</strong> includes email address, telephone number, and address.</li>
+                <li><strong>Technical Data</strong> includes internet protocol (IP) address, browser type and version, time zone setting and location, browser plug-in types and versions, operating system and platform, and other technology on the devices you use to access this website.</li>
+                <li><strong>Profile Data</strong> includes your username and password, purchases or orders made by you, your interests, preferences, feedback, and survey responses.</li>
+                <li><strong>Usage Data</strong> includes information about how you use our website, products, and services.</li>
+                <li><strong>Marketing and Communications Data</strong> includes your preferences in receiving marketing from us and our third parties and your communication preferences.</li>
+            </ul>
+            
+            <h2>How We Use Your Information</h2>
+            <p>We will only use your personal data when the law allows us to. Most commonly, we will use your personal data in the following circumstances:</p>
+            <ul>
+                <li>Where we need to perform the contract we are about to enter into or have entered into with you.</li>
+                <li>Where it is necessary for our legitimate interests (or those of a third party) and your interests and fundamental rights do not override those interests.</li>
+                <li>Where we need to comply with a legal obligation.</li>
+            </ul>
+            
+            <h3>Purposes for which we will use your personal data:</h3>
+            <ul>
+                <li>To register you as a new customer</li>
+                <li>To process and deliver your order</li>
+                <li>To manage our relationship with you</li>
+                <li>To enable you to participate in a promotion or complete a survey</li>
+                <li>To administer and protect our business and this website</li>
+                <li>To deliver relevant website content and advertisements to you</li>
+                <li>To use data analytics to improve our website, products/services, marketing, customer relationships, and experiences</li>
+            </ul>
+            
+            <h2>Cookies</h2>
+            <p>We use cookies and similar tracking technologies to track the activity on our Service and hold certain information. Cookies are files with a small amount of data which may include an anonymous unique identifier.</p>
+            <p>You can instruct your browser to refuse all cookies or to indicate when a cookie is being sent. However, if you do not accept cookies, you may not be able to use some portions of our Service.</p>
+            
+            <h2>Data Security</h2>
+            <p>We have put in place appropriate security measures to prevent your personal data from being accidentally lost, used or accessed in an unauthorized way, altered or disclosed. In addition, we limit access to your personal data to those employees, agents, contractors and other third parties who have a business need to know.</p>
+            
+            <h2>Data Retention</h2>
+            <p>We will only retain your personal data for as long as necessary to fulfill the purposes we collected it for, including for the purposes of satisfying any legal, accounting, or reporting requirements.</p>
+            
+            <h2>Your Legal Rights</h2>
+            <p>Under certain circumstances, you have rights under data protection laws in relation to your personal data, including the right to:</p>
+            <ul>
+                <li>Request access to your personal data</li>
+                <li>Request correction of your personal data</li>
+                <li>Request erasure of your personal data</li>
+                <li>Object to processing of your personal data</li>
+                <li>Request restriction of processing your personal data</li>
+                <li>Request transfer of your personal data</li>
+                <li>Right to withdraw consent</li>
+            </ul>
+            
+            <h2>Changes to This Privacy Policy</h2>
+            <p>We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last Updated" date at the top of this Privacy Policy.</p>
+            
+            <h2>Contact Us</h2>
+            <p>If you have any questions about this Privacy Policy, please contact us:</p>
+            <ul>
+                <li>By email: privacy@discoveringparadise.com</li>
+                <li>By phone: +1 (555) 123-4567</li>
+                <li>By mail: 123 Travel Street, Paradise City, PC 12345</li>
+            </ul>
+        </div>
+    </div>
+</section>
+{% endblock %}

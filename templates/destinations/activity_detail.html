@@ -1,0 +1,426 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ activity.name }} - Discovering Paradise{% endblock %}
+
+{% block extra_css %}
+<style>
+    .activity-header {
+        position: relative;
+        height: 50vh;
+        background-size: cover;
+        background-position: center;
+        color: white;
+        display: flex;
+        align-items: flex-end;
+    }
+    
+    .activity-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.7) 100%);
+    }
+    
+    .activity-header-content {
+        position: relative;
+        z-index: 1;
+        padding-bottom: 3rem;
+    }
+    
+    .activity-meta {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .activity-meta .badge {
+        margin-right: 1rem;
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .activity-rating {
+        display: flex;
+        align-items: center;
+    }
+    
+    .activity-rating .stars {
+        color: #FFD700;
+        margin-right: 0.5rem;
+    }
+    
+    .review-card {
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 1.5rem;
+    }
+    
+    .review-card .review-header {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        background-color: #f8f9fa;
+    }
+    
+    .review-card .review-header img {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 1rem;
+    }
+    
+    .review-card .review-body {
+        padding: 1.5rem;
+    }
+    
+    .review-card .review-footer {
+        padding: 1rem;
+        background-color: #f8f9fa;
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+    
+    .map-container {
+        height: 300px;
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+    
+    .activity-info-card {
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+    
+    .activity-info-card .card-header {
+        padding: 1.5rem;
+        background-color: var(--primary-color);
+        color: white;
+    }
+    
+    .activity-info-card .info-item {
+        display: flex;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .activity-info-card .info-item:last-child {
+        border-bottom: none;
+    }
+    
+    .activity-info-card .info-item i {
+        font-size: 1.5rem;
+        color: var(--primary-color);
+        margin-right: 1rem;
+        width: 30px;
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Activity Header -->
+<header class="activity-header" style="background-image: url('{% if activity.image %}{{ activity.image.url }}{% else %}{% static 'images/activities/placeholder.jpg' %}{% endif %}');">
+    <div class="container activity-header-content">
+        <div class="activity-meta">
+            <span class="badge bg-success">Activity</span>
+            <div class="activity-rating">
+                <div class="stars">
+                    {% with ''|center:avg_rating|floatformat:0|add:'0' as range %}
+                        {% for _ in range %}
+                            <i class="fas fa-star"></i>
+                        {% endfor %}
+                        {% if avg_rating|floatformat:1|slice:"-1:" == "5" %}
+                            <i class="fas fa-star-half-alt"></i>
+                        {% endif %}
+                    {% endwith %}
+                </div>
+                <span>{{ avg_rating|floatformat:1 }} ({{ reviews.count }} reviews)</span>
+            </div>
+        </div>
+        <h1 class="display-4">{{ activity.name }}</h1>
+        <p class="lead"><i class="fas fa-map-marker-alt me-2"></i>{{ destination.name }}, {{ destination.country }}</p>
+    </div>
+</header>
+
+<!-- Activity Content -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <h3 class="mb-4">About This Activity</h3>
+                <p>{{ activity.description|linebreaks }}</p>
+                
+                <div class="row mt-5">
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">What to Expect</h5>
+                                <ul class="list-unstyled">
+                                    <li class="mb-3"><i class="fas fa-check-circle text-success me-2"></i> Professional guides</li>
+                                    <li class="mb-3"><i class="fas fa-check-circle text-success me-2"></i> All necessary equipment</li>
+                                    <li class="mb-3"><i class="fas fa-check-circle text-success me-2"></i> Safety briefing</li>
+                                    <li class="mb-3"><i class="fas fa-check-circle text-success me-2"></i> Stunning views and photo opportunities</li>
+                                    <li><i class="fas fa-check-circle text-success me-2"></i> Unforgettable experience</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">What to Bring</h5>
+                                <ul class="list-unstyled">
+                                    <li class="mb-3"><i class="fas fa-suitcase text-primary me-2"></i> Comfortable clothing</li>
+                                    <li class="mb-3"><i class="fas fa-suitcase text-primary me-2"></i> Sunscreen and hat</li>
+                                    <li class="mb-3"><i class="fas fa-suitcase text-primary me-2"></i> Water bottle</li>
+                                    <li class="mb-3"><i class="fas fa-suitcase text-primary me-2"></i> Camera</li>
+                                    <li><i class="fas fa-suitcase text-primary me-2"></i> Sense of adventure</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <h4 class="mt-5 mb-4">Activity Photos</h4>
+                <div class="row">
+                    <div class="col-md-4 mb-4">
+                        <img src="{% static 'images/activities/activity-1.jpg' %}" alt="Activity Photo" class="img-fluid rounded">
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <img src="{% static 'images/activities/activity-2.jpg' %}" alt="Activity Photo" class="img-fluid rounded">
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <img src="{% static 'images/activities/activity-3.jpg' %}" alt="Activity Photo" class="img-fluid rounded">
+                    </div>
+                </div>
+                
+                <h4 class="mt-5 mb-4">Reviews</h4>
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <p class="mb-0">{{ reviews.count }} review{{ reviews.count|pluralize }}</p>
+                    <a href="#" class="btn btn-primary">
+                        <i class="fas fa-edit me-2"></i> Write a Review
+                    </a>
+                </div>
+                
+                {% if reviews %}
+                    {% for review in reviews %}
+                        <div class="review-card">
+                            <div class="review-header">
+                                <img src="{% static 'images/team/team-1.jpg' %}" alt="{{ review.user.username }}">
+                                <div>
+                                    <h5 class="mb-0">{{ review.user.get_full_name|default:review.user.username }}</h5>
+                                    <div class="stars">
+                                        {% for i in "12345" %}
+                                            {% if forloop.counter <= review.rating %}
+                                                <i class="fas fa-star text-warning"></i>
+                                            {% else %}
+                                                <i class="far fa-star text-warning"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="review-body">
+                                <h5>{{ review.title }}</h5>
+                                <p>{{ review.content }}</p>
+                            </div>
+                            <div class="review-footer">
+                                <i class="far fa-calendar-alt me-1"></i> {{ review.created_at|date:"F d, Y" }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="alert alert-info">
+                        <p>No reviews yet. Be the first to share your experience!</p>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="col-lg-4">
+                <!-- Activity Info Card -->
+                <div class="activity-info-card">
+                    <div class="card-header">
+                        <h4 class="mb-0">Activity Details</h4>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="info-item">
+                            <i class="fas fa-clock"></i>
+                            <div>
+                                <h6 class="mb-0">Duration</h6>
+                                <p class="mb-0">{{ activity.duration }}</p>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-tag"></i>
+                            <div>
+                                <h6 class="mb-0">Price</h6>
+                                <p class="mb-0">${{ activity.price }} per person</p>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-users"></i>
+                            <div>
+                                <h6 class="mb-0">Group Size</h6>
+                                <p class="mb-0">Maximum 12 people</p>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-language"></i>
+                            <div>
+                                <h6 class="mb-0">Languages</h6>
+                                <p class="mb-0">English, Spanish</p>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-calendar-alt"></i>
+                            <div>
+                                <h6 class="mb-0">Availability</h6>
+                                <p class="mb-0">Daily, 9:00 AM - 5:00 PM</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Booking Card -->
+                <div class="card mb-4 shadow">
+                    <div class="card-body">
+                        <h4 class="card-title mb-4">Book This Activity</h4>
+                        <form>
+                            <div class="mb-3">
+                                <label for="activity-date" class="form-label">Date</label>
+                                <input type="date" class="form-control date-picker" id="activity-date">
+                            </div>
+                            <div class="mb-3">
+                                <label for="activity-time" class="form-label">Time</label>
+                                <select class="form-select" id="activity-time">
+                                    <option value="9:00">9:00 AM</option>
+                                    <option value="11:00">11:00 AM</option>
+                                    <option value="13:00">1:00 PM</option>
+                                    <option value="15:00">3:00 PM</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="participants" class="form-label">Participants</label>
+                                <select class="form-select" id="participants">
+                                    <option value="1">1 Person</option>
+                                    <option value="2">2 People</option>
+                                    <option value="3">3 People</option>
+                                    <option value="4">4 People</option>
+                                    <option value="5">5+ People</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Book Now</button>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Map -->
+                <div class="map-container">
+                    <div class="bg-secondary d-flex align-items-center justify-content-center h-100">
+                        <p class="text-white">Map Placeholder - In a real project, this would be an embedded Google Map</p>
+                    </div>
+                </div>
+                
+                <!-- Destination Info -->
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">About the Destination</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <img src="{% if destination.image %}{{ destination.image.url }}{% else %}{% static 'images/destinations/placeholder.jpg' %}{% endif %}" alt="{{ destination.name }}" class="rounded me-3" style="width: 80px; height: 80px; object-fit: cover;">
+                            <div>
+                                <h5 class="mb-0">{{ destination.name }}</h5>
+                                <p class="mb-0 text-muted">{{ destination.country }}</p>
+                            </div>
+                        </div>
+                        <p>{{ destination.description|truncatewords:30 }}</p>
+                        <a href="{{ destination.get_absolute_url }}" class="btn btn-outline-primary w-100">
+                            Explore Destination
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Similar Activities -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <h3 class="mb-4">Similar Activities</h3>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="activity-card">
+                    <img src="{% static 'images/activities/activity-4.jpg' %}" class="card-img-top" alt="Activity">
+                    <div class="card-body">
+                        <h5 class="card-title">Guided City Tour</h5>
+                        <p class="card-text">Explore the city with a knowledgeable local guide.</p>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <i class="fas fa-clock text-primary me-1"></i> 3 hours
+                            </div>
+                            <div class="price fw-bold">
+                                <i class="fas fa-tag text-primary me-1"></i> $49
+                            </div>
+                        </div>
+                        <a href="#" class="btn btn-sm btn-primary w-100">
+                            View Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="activity-card">
+                    <img src="{% static 'images/activities/activity-5.jpg' %}" class="card-img-top" alt="Activity">
+                    <div class="card-body">
+                        <h5 class="card-title">Sunset Cruise</h5>
+                        <p class="card-text">Enjoy a relaxing cruise with stunning sunset views.</p>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <i class="fas fa-clock text-primary me-1"></i> 2 hours
+                            </div>
+                            <div class="price fw-bold">
+                                <i class="fas fa-tag text-primary me-1"></i> $79
+                            </div>
+                        </div>
+                        <a href="#" class="btn btn-sm btn-primary w-100">
+                            View Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="activity-card">
+                    <img src="{% static 'images/activities/activity-6.jpg' %}" class="card-img-top" alt="Activity">
+                    <div class="card-body">
+                        <h5 class="card-title">Cooking Class</h5>
+                        <p class="card-text">Learn to cook local dishes with a professional chef.</p>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <i class="fas fa-clock text-primary me-1"></i> 4 hours
+                            </div>
+                            <div class="price fw-bold">
+                                <i class="fas fa-tag text-primary me-1"></i> $89
+                            </div>
+                        </div>
+                        <a href="#" class="btn btn-sm btn-primary w-100">
+                            View Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

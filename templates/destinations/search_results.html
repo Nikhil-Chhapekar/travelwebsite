@@ -1,0 +1,245 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Search Results - Discovering Paradise{% endblock %}
+
+{% block extra_css %}
+<style>
+    .search-header {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 3rem 0;
+    }
+    
+    .search-form {
+        margin-top: -30px;
+        position: relative;
+        z-index: 10;
+    }
+    
+    .destination-card {
+        height: 100%;
+    }
+    
+    .no-results {
+        min-height: 300px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .no-results i {
+        font-size: 4rem;
+        color: #ccc;
+        margin-bottom: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Search Header -->
+<section class="search-header">
+    <div class="container">
+        <h1 class="display-5 mb-3">Search Results</h1>
+        <p class="lead">
+            {% if query %}
+                Showing results for "{{ query }}"
+            {% else %}
+                Browse our destinations
+            {% endif %}
+        </p>
+    </div>
+</section>
+
+<!-- Search Form -->
+<section class="py-5">
+    <div class="container">
+        <div class="row mb-5">
+            <div class="col-lg-8 mx-auto">
+                <form action="{% url 'destination_search' %}" method="get" class="search-form p-4">
+                    <div class="input-group">
+                        <input type="text" name="q" class="form-control form-control-lg" placeholder="Search destinations..." value="{{ query|default:'' }}">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search me-2"></i> Search
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Results -->
+        <div class="row">
+            {% if page_obj %}
+                <div class="col-12 mb-4">
+                    <h2>Found {{ page_obj.paginator.count }} destination{{ page_obj.paginator.count|pluralize }}</h2>
+                </div>
+                
+                {% for destination in page_obj %}
+                    <div class="col-lg-4 col-md-6 mb-4 animate-on-scroll">
+                        <div class="destination-card">
+                            <div class="card-img-wrapper">
+                                {% if destination.image %}
+                                    <img src="{{ destination.image.url }}" alt="{{ destination.name }}" class="card-img-top">
+                                {% else %}
+                                    <img src="{% static 'images/destinations/placeholder.jpg' %}" alt="{{ destination.name }}" class="card-img-top">
+                                {% endif %}
+                                <span class="location-badge">
+                                    <i class="fas fa-map-marker-alt me-1"></i> {{ destination.country }}
+                                </span>
+                                <div class="card-overlay">
+                                    <a href="{{ destination.get_absolute_url }}" class="btn btn-sm btn-light rounded-circle">
+                                        <i class="fas fa-link"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h5 class="card-title mb-0">{{ destination.name }}</h5>
+                                    {% if destination.featured %}
+                                        <span class="badge bg-primary rounded-pill">Featured</span>
+                                    {% endif %}
+                                </div>
+                                <div class="mb-3">
+                                    {% with destination.reviews.all|length as review_count %}
+                                        <div class="rating">
+                                            {% if review_count > 0 %}
+                                                {% with ''|center:destination.reviews.all|length as range %}
+                                                    {% for _ in range %}
+                                                        {% with forloop.counter as i %}
+                                                            {% if i <= 5 %}
+                                                                <i class="fas fa-star text-warning"></i>
+                                                            {% endif %}
+                                                        {% endwith %}
+                                                    {% endfor %}
+                                                {% endwith %}
+                                                <span class="text-muted ms-1">({{ review_count }} reviews)</span>
+                                            {% else %}
+                                                <i class="fas fa-star text-warning"></i>
+                                                <i class="fas fa-star text-warning"></i>
+                                                <i class="fas fa-star text-warning"></i>
+                                                <i class="fas fa-star text-warning"></i>
+                                                <i class="fas fa-star-half-alt text-warning"></i>
+                                                <span class="text-muted ms-1">(0 reviews)</span>
+                                            {% endif %}
+                                        </div>
+                                    {% endwith %}
+                                </div>
+                                <p class="card-text">{{ destination.description|truncatewords:15 }}</p>
+                                <hr>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="price fw-bold">
+                                        <i class="fas fa-tag text-primary me-1"></i> From ${{ destination.accommodations.all.0.price_per_night|default:"199" }}
+                                    </div>
+                                    <a href="{{ destination.get_absolute_url }}" class="btn btn-sm btn-primary">
+                                        Explore <i class="fas fa-arrow-right ms-1"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12">
+                    <div class="no-results">
+                        <i class="fas fa-search"></i>
+                        <h3>No destinations found</h3>
+                        <p class="text-muted">Try adjusting your search criteria</p>
+                        <a href="{% url 'destination_list' %}" class="btn btn-outline-primary mt-3">View All Destinations</a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+            <div class="pagination-container mt-5 d-flex justify-content-center">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1{% if query %}&q={{ query }}{% endif %}" aria-label="First">
+                                    <span aria-hidden="true">&laquo;&laquo;</span>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                        {% endif %}
+                        
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li class="page-item active"><a class="page-link" href="#">{{ num }}</a></li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}" aria-label="Last">
+                                    <span aria-hidden="true">&raquo;&raquo;</span>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Related Searches -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <h3 class="mb-4">Popular Searches</h3>
+        <div class="row">
+            <div class="col-lg-3 col-md-6 mb-4">
+                <a href="{% url 'destination_search' %}?q=beach" class="card h-100 text-decoration-none text-dark">
+                    <img src="{% static 'images/destinations/beach-category.jpg' %}" class="card-img-top" alt="Beach Destinations">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Beach Destinations</h5>
+                        <p class="card-text text-muted">Explore sandy shores and crystal waters</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <a href="{% url 'destination_search' %}?q=mountain" class="card h-100 text-decoration-none text-dark">
+                    <img src="{% static 'images/destinations/mountain-category.jpg' %}" class="card-img-top" alt="Mountain Getaways">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Mountain Getaways</h5>
+                        <p class="card-text text-muted">Discover breathtaking peaks and valleys</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <a href="{% url 'destination_search' %}?q=city" class="card h-100 text-decoration-none text-dark">
+                    <img src="{% static 'images/destinations/city-category.jpg' %}" class="card-img-top" alt="City Breaks">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">City Breaks</h5>
+                        <p class="card-text text-muted">Experience vibrant urban adventures</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <a href="{% url 'destination_search' %}?q=cultural" class="card h-100 text-decoration-none text-dark">
+                    <img src="{% static 'images/destinations/cultural-category.jpg' %}" class="card-img-top" alt="Cultural Experiences">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Cultural Experiences</h5>
+                        <p class="card-text text-muted">Immerse yourself in local traditions</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

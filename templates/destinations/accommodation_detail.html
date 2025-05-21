@@ -1,0 +1,455 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ accommodation.name }} - Discovering Paradise{% endblock %}
+
+{% block extra_css %}
+<style>
+    .accommodation-header {
+        position: relative;
+        height: 50vh;
+        background-size: cover;
+        background-position: center;
+        color: white;
+        display: flex;
+        align-items: flex-end;
+    }
+
+    .accommodation-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.7) 100%);
+    }
+
+    .accommodation-header-content {
+        position: relative;
+        z-index: 1;
+        padding-bottom: 3rem;
+    }
+
+    .accommodation-meta {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .accommodation-meta .badge {
+        margin-right: 1rem;
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    .accommodation-rating {
+        display: flex;
+        align-items: center;
+    }
+
+    .accommodation-rating .stars {
+        color: #FFD700;
+        margin-right: 0.5rem;
+    }
+
+    .amenity-item {
+        margin-bottom: 1rem;
+        padding-left: 2rem;
+        position: relative;
+    }
+
+    .amenity-item i {
+        position: absolute;
+        left: 0;
+        top: 0.25rem;
+        color: var(--primary-color);
+    }
+
+    .review-card {
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 1.5rem;
+    }
+
+    .review-card .review-header {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        background-color: #f8f9fa;
+    }
+
+    .review-card .review-header img {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 1rem;
+    }
+
+    .review-card .review-body {
+        padding: 1.5rem;
+    }
+
+    .review-card .review-footer {
+        padding: 1rem;
+        background-color: #f8f9fa;
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+
+    .map-container {
+        height: 300px;
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+
+    .room-card {
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+
+    .room-card img {
+        height: 200px;
+        object-fit: cover;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Accommodation Header -->
+<header class="accommodation-header" style="background-image: url('{% if accommodation.image %}{{ accommodation.image.url }}{% else %}{% static 'images/accommodations/placeholder.jpg' %}{% endif %}');">
+    <div class="container accommodation-header-content">
+        <div class="accommodation-meta">
+            <span class="badge bg-info">{{ accommodation.get_type_display }}</span>
+            <div class="accommodation-rating">
+                <div class="stars">
+                    {% with ''|center:avg_rating|floatformat:0|add:'0' as range %}
+                        {% for _ in range %}
+                            <i class="fas fa-star"></i>
+                        {% endfor %}
+                        {% if avg_rating|floatformat:1|slice:"-1:" == "5" %}
+                            <i class="fas fa-star-half-alt"></i>
+                        {% endif %}
+                    {% endwith %}
+                </div>
+                <span>{{ avg_rating|floatformat:1 }} ({{ reviews.count }} reviews)</span>
+            </div>
+        </div>
+        <h1 class="display-4">{{ accommodation.name }}</h1>
+        <p class="lead"><i class="fas fa-map-marker-alt me-2"></i>{{ destination.name }}, {{ destination.country }}</p>
+    </div>
+</header>
+
+<!-- Accommodation Content -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <h3 class="mb-4">About {{ accommodation.name }}</h3>
+                <p>{{ accommodation.description|linebreaks }}</p>
+
+                <h4 class="mt-5 mb-4">Amenities</h4>
+                <div class="row">
+                    <div class="col-md-6">
+                        {% with accommodation.amenities.split as amenities_list %}
+                            {% for amenity in amenities_list %}
+                                {% if forloop.counter0|divisibleby:2 %}
+                                    <div class="amenity-item">
+                                        <i class="fas fa-check-circle"></i>
+                                        <p>{{ amenity }}</p>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        {% endwith %}
+                    </div>
+                    <div class="col-md-6">
+                        {% with accommodation.amenities.split as amenities_list %}
+                            {% for amenity in amenities_list %}
+                                {% if not forloop.counter0|divisibleby:2 %}
+                                    <div class="amenity-item">
+                                        <i class="fas fa-check-circle"></i>
+                                        <p>{{ amenity }}</p>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        {% endwith %}
+                    </div>
+                </div>
+
+                <h4 class="mt-5 mb-4">Available Rooms</h4>
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div class="room-card">
+                            <img src="{% static 'images/accommodations/room-1.jpg' %}" class="card-img-top" alt="Standard Room">
+                            <div class="card-body">
+                                <h5 class="card-title">Standard Room</h5>
+                                <p class="card-text">Comfortable room with all basic amenities for a pleasant stay.</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="price fw-bold">
+                                        <i class="fas fa-tag text-primary me-1"></i> ${{ accommodation.price_per_night }} / night
+                                    </div>
+                                    <a href="#" class="btn btn-sm btn-primary">
+                                        Book Now
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="room-card">
+                            <img src="{% static 'images/accommodations/room-2.jpg' %}" class="card-img-top" alt="Deluxe Room">
+                            <div class="card-body">
+                                <h5 class="card-title">Deluxe Room</h5>
+                                <p class="card-text">Spacious room with premium amenities and beautiful views.</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="price fw-bold">
+                                        <i class="fas fa-tag text-primary me-1"></i> ${{ accommodation.price_per_night|add:"50" }} / night
+                                    </div>
+                                    <a href="#" class="btn btn-sm btn-primary">
+                                        Book Now
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h4 class="mt-5 mb-4">Reviews</h4>
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <p class="mb-0">{{ reviews.count }} review{{ reviews.count|pluralize }}</p>
+                    <a href="#" class="btn btn-primary">
+                        <i class="fas fa-edit me-2"></i> Write a Review
+                    </a>
+                </div>
+
+                {% if reviews %}
+                    {% for review in reviews %}
+                        <div class="review-card">
+                            <div class="review-header">
+                                <img src="{% static 'images/team/team-1.jpg' %}" alt="{{ review.user.username }}">
+                                <div>
+                                    <h5 class="mb-0">{{ review.user.get_full_name|default:review.user.username }}</h5>
+                                    <div class="stars">
+                                        {% for i in "12345" %}
+                                            {% if forloop.counter <= review.rating %}
+                                                <i class="fas fa-star text-warning"></i>
+                                            {% else %}
+                                                <i class="far fa-star text-warning"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="review-body">
+                                <h5>{{ review.title }}</h5>
+                                <p>{{ review.content }}</p>
+                            </div>
+                            <div class="review-footer">
+                                <i class="far fa-calendar-alt me-1"></i> {{ review.created_at|date:"F d, Y" }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="alert alert-info">
+                        <p>No reviews yet. Be the first to share your experience!</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="col-lg-4">
+                <!-- Booking Card -->
+                <div class="card mb-4 shadow">
+                    <div class="card-body">
+                        <h4 class="card-title mb-4">Book Your Stay</h4>
+
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        <form method="post" action="">
+                            {% csrf_token %}
+
+                            <div class="mb-3">
+                                <label for="id_full_name" class="form-label">Full Name</label>
+                                {{ form.full_name }}
+                                {% if form.full_name.errors %}
+                                    <div class="text-danger">{{ form.full_name.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="id_email" class="form-label">Email</label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                    <div class="text-danger">{{ form.email.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="id_phone" class="form-label">Phone</label>
+                                {{ form.phone }}
+                                {% if form.phone.errors %}
+                                    <div class="text-danger">{{ form.phone.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="id_check_in_date" class="form-label">Check In</label>
+                                {{ form.check_in_date }}
+                                {% if form.check_in_date.errors %}
+                                    <div class="text-danger">{{ form.check_in_date.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="id_check_out_date" class="form-label">Check Out</label>
+                                {{ form.check_out_date }}
+                                {% if form.check_out_date.errors %}
+                                    <div class="text-danger">{{ form.check_out_date.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="id_room_type" class="form-label">Room Type</label>
+                                {{ form.room_type }}
+                                {% if form.room_type.errors %}
+                                    <div class="text-danger">{{ form.room_type.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="id_guests" class="form-label">Guests</label>
+                                <select name="guests" class="form-select" id="id_guests">
+                                    <option value="1">1 Guest</option>
+                                    <option value="2">2 Guests</option>
+                                    <option value="3">3 Guests</option>
+                                    <option value="4">4 Guests</option>
+                                </select>
+                                {% if form.guests.errors %}
+                                    <div class="text-danger">{{ form.guests.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="id_special_requests" class="form-label">Special Requests</label>
+                                {{ form.special_requests }}
+                                {% if form.special_requests.errors %}
+                                    <div class="text-danger">{{ form.special_requests.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100">Book Now</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Map -->
+                <div class="map-container">
+                    <div class="bg-secondary d-flex align-items-center justify-content-center h-100">
+                        <p class="text-white">Map Placeholder - In a real project, this would be an embedded Google Map</p>
+                    </div>
+                </div>
+
+                <!-- Destination Info -->
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">About the Destination</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <img src="{% if destination.image %}{{ destination.image.url }}{% else %}{% static 'images/destinations/placeholder.jpg' %}{% endif %}" alt="{{ destination.name }}" class="rounded me-3" style="width: 80px; height: 80px; object-fit: cover;">
+                            <div>
+                                <h5 class="mb-0">{{ destination.name }}</h5>
+                                <p class="mb-0 text-muted">{{ destination.country }}</p>
+                            </div>
+                        </div>
+                        <p>{{ destination.description|truncatewords:30 }}</p>
+                        <a href="{{ destination.get_absolute_url }}" class="btn btn-outline-primary w-100">
+                            Explore Destination
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Similar Accommodations -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <h3 class="mb-4">Similar Accommodations</h3>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="accommodation-card">
+                    <img src="{% static 'images/accommodations/hotel-1.jpg' %}" class="card-img-top" alt="Hotel">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5 class="card-title mb-0">Luxury Resort</h5>
+                            <span class="badge bg-info">Resort</span>
+                        </div>
+                        <p class="card-text">Luxurious resort with stunning views and premium amenities.</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="price fw-bold">
+                                <i class="fas fa-tag text-primary me-1"></i> $299 / night
+                            </div>
+                            <a href="#" class="btn btn-sm btn-primary">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="accommodation-card">
+                    <img src="{% static 'images/accommodations/hotel-2.jpg' %}" class="card-img-top" alt="Hotel">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5 class="card-title mb-0">Boutique Hotel</h5>
+                            <span class="badge bg-info">Hotel</span>
+                        </div>
+                        <p class="card-text">Charming boutique hotel with personalized service and unique design.</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="price fw-bold">
+                                <i class="fas fa-tag text-primary me-1"></i> $199 / night
+                            </div>
+                            <a href="#" class="btn btn-sm btn-primary">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="accommodation-card">
+                    <img src="{% static 'images/accommodations/hotel-3.jpg' %}" class="card-img-top" alt="Hotel">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5 class="card-title mb-0">Beachfront Villa</h5>
+                            <span class="badge bg-info">Villa</span>
+                        </div>
+                        <p class="card-text">Private villa with direct beach access and stunning ocean views.</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="price fw-bold">
+                                <i class="fas fa-tag text-primary me-1"></i> $349 / night
+                            </div>
+                            <a href="#" class="btn btn-sm btn-primary">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

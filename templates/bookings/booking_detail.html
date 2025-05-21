@@ -1,0 +1,428 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load booking_extras %}
+
+{% block title %}Booking Details - Discovering Paradise{% endblock %}
+
+{% block extra_css %}
+<style>
+    .booking-header {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 3rem 0;
+    }
+
+    .booking-status-badge {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: 30px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-left: 1rem;
+    }
+
+    .booking-status-badge.pending {
+        background-color: #ffc107;
+        color: #212529;
+    }
+
+    .booking-status-badge.confirmed {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .booking-status-badge.completed {
+        background-color: #17a2b8;
+        color: white;
+    }
+
+    .booking-status-badge.cancelled {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .booking-section {
+        background-color: white;
+        border-radius: var(--border-radius);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .booking-section-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #eee;
+    }
+
+    .booking-info-item {
+        display: flex;
+        margin-bottom: 1rem;
+    }
+
+    .booking-info-item .icon {
+        width: 40px;
+        height: 40px;
+        background-color: rgba(var(--primary-rgb), 0.1);
+        color: var(--primary-color);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+    }
+
+    .booking-info-item .content {
+        flex: 1;
+    }
+
+    .booking-info-item .content h5 {
+        margin-bottom: 0.25rem;
+        font-weight: 600;
+    }
+
+    .booking-info-item .content p {
+        margin-bottom: 0;
+        color: #6c757d;
+    }
+
+    .accommodation-card, .activity-card {
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 1.5rem;
+    }
+
+    .accommodation-card img, .activity-card img {
+        height: 200px;
+        object-fit: cover;
+    }
+
+    .payment-info {
+        background-color: #f8f9fa;
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+    }
+
+    .payment-info .payment-status {
+        display: inline-block;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-left: 0.5rem;
+    }
+
+    .payment-info .payment-status.completed {
+        background-color: rgba(40, 167, 69, 0.1);
+        color: #28a745;
+    }
+
+    .payment-info .payment-status.pending {
+        background-color: rgba(255, 193, 7, 0.1);
+        color: #ffc107;
+    }
+
+    .payment-info .payment-status.failed {
+        background-color: rgba(220, 53, 69, 0.1);
+        color: #dc3545;
+    }
+
+    .payment-info .payment-status.refunded {
+        background-color: rgba(23, 162, 184, 0.1);
+        color: #17a2b8;
+    }
+
+    .price-breakdown {
+        margin-top: 1.5rem;
+    }
+
+    .price-breakdown .item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px dashed #dee2e6;
+    }
+
+    .price-breakdown .item:last-child {
+        border-bottom: none;
+    }
+
+    .price-breakdown .total {
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 2px solid #dee2e6;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Booking Header -->
+<header class="booking-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 mx-auto text-center">
+                <h1 class="display-4 mb-3">
+                    Booking Details
+                    <span class="booking-status-badge {{ booking.status|lower }}">{{ booking.get_status_display }}</span>
+                </h1>
+                <p class="lead">Booking ID: {{ booking.booking_id }}</p>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Booking Content -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Booking Summary -->
+                <div class="booking-section">
+                    <div class="booking-section-title">
+                        <h3 class="mb-0">Booking Summary</h3>
+                        <span class="text-muted">Booked on {{ booking.created_at|date:"F d, Y" }}</span>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="booking-info-item">
+                                <div class="icon">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </div>
+                                <div class="content">
+                                    <h5>Destination</h5>
+                                    <p>{{ booking.destination.name }}, {{ booking.destination.country }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="booking-info-item">
+                                <div class="icon">
+                                    <i class="fas fa-hotel"></i>
+                                </div>
+                                <div class="content">
+                                    <h5>Accommodation</h5>
+                                    <p>{{ booking.accommodation.name }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="booking-info-item">
+                                <div class="icon">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </div>
+                                <div class="content">
+                                    <h5>Check-in / Check-out</h5>
+                                    <p>{{ booking.start_date|date:"M d, Y" }} - {{ booking.end_date|date:"M d, Y" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="booking-info-item">
+                                <div class="icon">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <div class="content">
+                                    <h5>Guests</h5>
+                                    <p>{{ booking.adults }} Adult{% if booking.adults > 1 %}s{% endif %}{% if booking.children %}, {{ booking.children }} Child{% if booking.children > 1 %}ren{% endif %}{% endif %}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if booking.special_requests %}
+                        <div class="mt-4">
+                            <h5>Special Requests</h5>
+                            <p class="mb-0">{{ booking.special_requests }}</p>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Accommodation Details -->
+                <div class="booking-section">
+                    <div class="booking-section-title">
+                        <h3 class="mb-0">Accommodation Details</h3>
+                    </div>
+                    <div class="accommodation-card">
+                        <div class="row g-0">
+                            <div class="col-md-4">
+                                {% if booking.accommodation.image %}
+                                    <img src="{{ booking.accommodation.image.url }}" alt="{{ booking.accommodation.name }}" class="img-fluid h-100">
+                                {% else %}
+                                    <img src="{% static 'images/accommodations/placeholder.jpg' %}" alt="{{ booking.accommodation.name }}" class="img-fluid h-100">
+                                {% endif %}
+                            </div>
+                            <div class="col-md-8">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h4 class="card-title">{{ booking.accommodation.name }}</h4>
+                                        <span class="badge bg-info">{{ booking.accommodation.get_type_display }}</span>
+                                    </div>
+                                    <p class="card-text">{{ booking.accommodation.description|truncatewords:30 }}</p>
+                                    <h5 class="mt-3 mb-2">Amenities</h5>
+                                    <div class="d-flex flex-wrap">
+                                        {% with booking.accommodation.amenities.split as amenities_list %}
+                                            {% for amenity in amenities_list %}
+                                                <span class="badge bg-light text-dark me-2 mb-2">{{ amenity }}</span>
+                                            {% endfor %}
+                                        {% endwith %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activities -->
+                {% if activities %}
+                    <div class="booking-section">
+                        <div class="booking-section-title">
+                            <h3 class="mb-0">Booked Activities</h3>
+                        </div>
+                        {% for activity in activities %}
+                            <div class="activity-card mb-3">
+                                <div class="row g-0">
+                                    <div class="col-md-4">
+                                        {% if activity.activity.image %}
+                                            <img src="{{ activity.activity.image.url }}" alt="{{ activity.activity.name }}" class="img-fluid h-100">
+                                        {% else %}
+                                            <img src="{% static 'images/activities/placeholder.jpg' %}" alt="{{ activity.activity.name }}" class="img-fluid h-100">
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="card-body">
+                                            <h4 class="card-title">{{ activity.activity.name }}</h4>
+                                            <p class="card-text">{{ activity.activity.description|truncatewords:20 }}</p>
+                                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                                <div>
+                                                    <i class="fas fa-calendar-day text-primary me-1"></i> {{ activity.date|date:"M d, Y" }}
+                                                </div>
+                                                <div>
+                                                    <i class="fas fa-users text-primary me-1"></i> {{ activity.participants }} participant{{ activity.participants|pluralize }}
+                                                </div>
+                                                <div class="fw-bold">
+                                                    <i class="fas fa-tag text-primary me-1"></i> ${{ activity.price }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="col-lg-4">
+                <!-- Payment Information -->
+                <div class="booking-section">
+                    <div class="booking-section-title">
+                        <h3 class="mb-0">Payment Information</h3>
+                    </div>
+
+                    {% if payment %}
+                        <div class="payment-info">
+                            <h5>
+                                Payment Status
+                                <span class="payment-status {{ payment.status|lower }}">{{ payment.get_status_display }}</span>
+                            </h5>
+                            <p class="mb-1"><i class="fas fa-credit-card text-primary me-2"></i> {{ payment.get_payment_method_display }}</p>
+                            <p class="mb-1"><i class="fas fa-receipt text-primary me-2"></i> Transaction ID: {{ payment.transaction_id }}</p>
+                            <p class="mb-3"><i class="fas fa-calendar-check text-primary me-2"></i> Paid on {{ payment.created_at|date:"M d, Y" }}</p>
+
+                            <div class="price-breakdown">
+                                <h5 class="mb-3">Price Breakdown</h5>
+                                <div class="item">
+                                    <span>Accommodation ({{ booking.accommodation.name }})</span>
+                                    <span>${{ booking.accommodation.price_per_night }} x {{ booking.end_date|days_until:booking.start_date }} nights</span>
+                                </div>
+                                {% if activities %}
+                                    {% for activity in activities %}
+                                        <div class="item">
+                                            <span>{{ activity.activity.name }}</span>
+                                            <span>${{ activity.price }}</span>
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+                                <div class="total">
+                                    <span>Total</span>
+                                    <span>${{ booking.total_price }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning">
+                            <p class="mb-0">Payment information not available.</p>
+                        </div>
+
+                        {% if booking.status == 'pending' %}
+                            <div class="mt-3">
+                                <a href="{% url 'booking_payment' booking_id=booking.booking_id %}" class="btn btn-primary w-100">
+                                    <i class="fas fa-credit-card me-2"></i> Proceed to Payment
+                                </a>
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+
+                <!-- Actions -->
+                <div class="booking-section">
+                    <div class="booking-section-title">
+                        <h3 class="mb-0">Actions</h3>
+                    </div>
+                    <div class="d-grid gap-2">
+                        {% if booking.status == 'confirmed' %}
+                            <a href="javascript:void(0);" onclick="downloadConfirmation('{{ booking.booking_id }}')" class="btn btn-outline-primary">
+                                <i class="fas fa-download me-2"></i> Download Booking Confirmation
+                            </a>
+                        {% endif %}
+
+                        {% if booking.status == 'pending' or booking.status == 'confirmed' %}
+                            <a href="{% url 'cancel_booking' booking_id=booking.booking_id %}" class="btn btn-outline-danger">
+                                <i class="fas fa-times me-2"></i> Cancel Booking
+                            </a>
+                        {% endif %}
+
+                        <a href="{% url 'my_bookings' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i> Back to My Bookings
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Need Help -->
+                <div class="booking-section">
+                    <div class="booking-section-title">
+                        <h3 class="mb-0">Need Help?</h3>
+                    </div>
+                    <p>If you have any questions or need assistance with your booking, please contact our customer support team.</p>
+                    <div class="d-grid">
+                        <a href="{% url 'contact' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-headset me-2"></i> Contact Support
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function downloadConfirmation(bookingId) {
+        // In a real application, this would make an AJAX request to generate and download the PDF
+        alert('Booking confirmation for booking ID: ' + bookingId + ' is being prepared for download.');
+
+        // For demonstration purposes, we'll show a success message after a short delay
+        setTimeout(function() {
+            alert('Download complete! Your booking confirmation has been downloaded.');
+        }, 1500);
+    }
+</script>
+{% endblock %}

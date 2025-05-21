@@ -1,0 +1,305 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Wishlist - Discovering Paradise{% endblock %}
+
+{% block extra_css %}
+<style>
+    .wishlist-header {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 3rem 0;
+    }
+    
+    .wishlist-card {
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        height: 100%;
+    }
+    
+    .wishlist-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    }
+    
+    .wishlist-card img {
+        height: 200px;
+        object-fit: cover;
+    }
+    
+    .wishlist-card .card-img-wrapper {
+        position: relative;
+    }
+    
+    .wishlist-card .remove-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background-color: rgba(255, 255, 255, 0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #dc3545;
+        border: none;
+        transition: all 0.3s ease;
+    }
+    
+    .wishlist-card .remove-btn:hover {
+        background-color: #dc3545;
+        color: white;
+    }
+    
+    .wishlist-card .location-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background-color: rgba(255, 255, 255, 0.9);
+        color: var(--primary-color);
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    
+    .empty-wishlist {
+        min-height: 400px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+    
+    .empty-wishlist i {
+        font-size: 5rem;
+        color: #ccc;
+        margin-bottom: 1.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Wishlist Header -->
+<header class="wishlist-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 mx-auto text-center">
+                <h1 class="display-4 mb-3">My Wishlist</h1>
+                <p class="lead">Save your dream destinations and plan your future adventures</p>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Wishlist Content -->
+<section class="py-5">
+    <div class="container">
+        {% if wishlist_items %}
+            <div class="row">
+                {% for item in wishlist_items %}
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="wishlist-card">
+                            <div class="card-img-wrapper">
+                                {% if item.destination.image %}
+                                    <img src="{{ item.destination.image.url }}" alt="{{ item.destination.name }}" class="card-img-top">
+                                {% else %}
+                                    <img src="{% static 'images/destinations/placeholder.jpg' %}" alt="{{ item.destination.name }}" class="card-img-top">
+                                {% endif %}
+                                <span class="location-badge">
+                                    <i class="fas fa-map-marker-alt me-1"></i> {{ item.destination.country }}
+                                </span>
+                                <form action="{% url 'remove_from_wishlist' item_id=item.id %}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="remove-btn" title="Remove from wishlist">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">{{ item.destination.name }}</h5>
+                                <p class="card-text">{{ item.destination.description|truncatewords:15 }}</p>
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <div class="rating">
+                                        {% with item.destination.reviews.all|length as review_count %}
+                                            {% if review_count > 0 %}
+                                                {% with ''|center:item.destination.reviews.all|length as range %}
+                                                    {% for _ in range %}
+                                                        {% with forloop.counter as i %}
+                                                            {% if i <= 5 %}
+                                                                <i class="fas fa-star text-warning"></i>
+                                                            {% endif %}
+                                                        {% endwith %}
+                                                    {% endfor %}
+                                                {% endwith %}
+                                                <span class="text-muted ms-1">({{ review_count }} reviews)</span>
+                                            {% else %}
+                                                <i class="fas fa-star text-warning"></i>
+                                                <i class="fas fa-star text-warning"></i>
+                                                <i class="fas fa-star text-warning"></i>
+                                                <i class="fas fa-star text-warning"></i>
+                                                <i class="fas fa-star-half-alt text-warning"></i>
+                                                <span class="text-muted ms-1">(0 reviews)</span>
+                                            {% endif %}
+                                        {% endwith %}
+                                    </div>
+                                    <div class="price fw-bold">
+                                        <i class="fas fa-tag text-primary me-1"></i> From ${{ item.destination.accommodations.all.0.price_per_night|default:"199" }}
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">Added {{ item.added_at|date:"M d, Y" }}</small>
+                                    <a href="{{ item.destination.get_absolute_url }}" class="btn btn-sm btn-primary">
+                                        Explore <i class="fas fa-arrow-right ms-1"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-wishlist">
+                <i class="far fa-heart"></i>
+                <h2>Your wishlist is empty</h2>
+                <p class="text-muted mb-4">Save your favorite destinations to your wishlist for easy access later.</p>
+                <a href="{% url 'destination_list' %}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-globe-americas me-2"></i> Explore Destinations
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Recommended Destinations -->
+{% if wishlist_items %}
+    <section class="py-5 bg-light">
+        <div class="container">
+            <h2 class="section-title text-center mb-5">You Might Also Like</h2>
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="destination-card">
+                        <div class="card-img-wrapper">
+                            <img src="{% static 'images/destinations/bali.jpg' %}" alt="Bali" class="card-img-top">
+                            <span class="location-badge">
+                                <i class="fas fa-map-marker-alt me-1"></i> Indonesia
+                            </span>
+                            <div class="card-overlay">
+                                <a href="#" class="btn btn-sm btn-light rounded-circle">
+                                    <i class="fas fa-link"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h5 class="card-title mb-0">Bali</h5>
+                                <span class="badge bg-primary rounded-pill">Featured</span>
+                            </div>
+                            <div class="mb-3">
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star-half-alt text-warning"></i>
+                                <span class="text-muted ms-1">(124 reviews)</span>
+                            </div>
+                            <p class="card-text">Experience the perfect blend of stunning beaches, lush rice terraces, and vibrant cultural heritage.</p>
+                            <hr>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="price fw-bold">
+                                    <i class="fas fa-tag text-primary me-1"></i> From $199
+                                </div>
+                                <a href="#" class="btn btn-sm btn-primary">
+                                    Explore <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="destination-card">
+                        <div class="card-img-wrapper">
+                            <img src="{% static 'images/destinations/santorini.jpg' %}" alt="Santorini" class="card-img-top">
+                            <span class="location-badge">
+                                <i class="fas fa-map-marker-alt me-1"></i> Greece
+                            </span>
+                            <div class="card-overlay">
+                                <a href="#" class="btn btn-sm btn-light rounded-circle">
+                                    <i class="fas fa-link"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h5 class="card-title mb-0">Santorini</h5>
+                                <span class="badge bg-primary rounded-pill">Featured</span>
+                            </div>
+                            <div class="mb-3">
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <span class="text-muted ms-1">(210 reviews)</span>
+                            </div>
+                            <p class="card-text">Discover the iconic white-washed buildings, blue domes, and breathtaking sunsets of this Greek paradise.</p>
+                            <hr>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="price fw-bold">
+                                    <i class="fas fa-tag text-primary me-1"></i> From $249
+                                </div>
+                                <a href="#" class="btn btn-sm btn-primary">
+                                    Explore <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="destination-card">
+                        <div class="card-img-wrapper">
+                            <img src="{% static 'images/destinations/maldives.jpg' %}" alt="Maldives" class="card-img-top">
+                            <span class="location-badge">
+                                <i class="fas fa-map-marker-alt me-1"></i> Maldives
+                            </span>
+                            <div class="card-overlay">
+                                <a href="#" class="btn btn-sm btn-light rounded-circle">
+                                    <i class="fas fa-link"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h5 class="card-title mb-0">Maldives</h5>
+                                <span class="badge bg-primary rounded-pill">Featured</span>
+                            </div>
+                            <div class="mb-3">
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star-half-alt text-warning"></i>
+                                <span class="text-muted ms-1">(186 reviews)</span>
+                            </div>
+                            <p class="card-text">Relax in luxury overwater bungalows surrounded by crystal clear turquoise waters and white sandy beaches.</p>
+                            <hr>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="price fw-bold">
+                                    <i class="fas fa-tag text-primary me-1"></i> From $299
+                                </div>
+                                <a href="#" class="btn btn-sm btn-primary">
+                                    Explore <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endif %}
+{% endblock %}

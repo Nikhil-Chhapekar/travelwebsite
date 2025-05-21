@@ -1,0 +1,343 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Bookings - Discovering Paradise{% endblock %}
+
+{% block extra_css %}
+<style>
+    .bookings-header {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 3rem 0;
+    }
+
+    .booking-card {
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        margin-bottom: 2rem;
+    }
+
+    .booking-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    .booking-card .card-img-wrapper {
+        position: relative;
+        height: 200px;
+    }
+
+    .booking-card .card-img-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .booking-status {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        padding: 0.5rem 1rem;
+        border-radius: 30px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        z-index: 1;
+    }
+
+    .booking-status.pending {
+        background-color: rgba(255, 193, 7, 0.9);
+        color: #212529;
+    }
+
+    .booking-status.confirmed {
+        background-color: rgba(40, 167, 69, 0.9);
+        color: white;
+    }
+
+    .booking-status.completed {
+        background-color: rgba(23, 162, 184, 0.9);
+        color: white;
+    }
+
+    .booking-status.cancelled {
+        background-color: rgba(220, 53, 69, 0.9);
+        color: white;
+    }
+
+    .booking-details {
+        padding: 1.5rem;
+    }
+
+    .booking-details .booking-id {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin-bottom: 0.5rem;
+    }
+
+    .booking-details .booking-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .booking-details .booking-info {
+        margin-bottom: 1.5rem;
+    }
+
+    .booking-details .booking-info-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .booking-details .booking-info-item i {
+        width: 25px;
+        color: var(--primary-color);
+        margin-right: 0.5rem;
+    }
+
+    .booking-details .booking-price {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 1.5rem;
+    }
+
+    .booking-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .booking-actions .btn {
+        padding: 0.5rem 1rem;
+    }
+
+    .empty-bookings {
+        min-height: 400px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .empty-bookings i {
+        font-size: 5rem;
+        color: #ccc;
+        margin-bottom: 1.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Bookings Header -->
+<header class="bookings-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 mx-auto text-center">
+                <h1 class="display-4 mb-3">My Bookings</h1>
+                <p class="lead">Manage your travel bookings and reservations</p>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Bookings Content -->
+<section class="py-5">
+    <div class="container">
+        {% if bookings %}
+            <div class="row">
+                {% for booking in bookings %}
+                    <div class="col-lg-6">
+                        <div class="booking-card">
+                            <div class="card-img-wrapper">
+                                {% if booking.destination.image %}
+                                    <img src="{{ booking.destination.image.url }}" alt="{{ booking.destination.name }}">
+                                {% else %}
+                                    <img src="{% static 'images/destinations/placeholder.jpg' %}" alt="{{ booking.destination.name }}">
+                                {% endif %}
+                                <span class="booking-status {{ booking.status|lower }}">{{ booking.get_status_display }}</span>
+                            </div>
+                            <div class="booking-details">
+                                <div class="booking-id">Booking ID: {{ booking.booking_id }}</div>
+                                <h3 class="booking-title">{{ booking.destination.name }}</h3>
+                                <div class="booking-info">
+                                    <div class="booking-info-item">
+                                        <i class="fas fa-hotel"></i>
+                                        <span>{{ booking.accommodation.name }}</span>
+                                    </div>
+                                    <div class="booking-info-item">
+                                        <i class="fas fa-calendar-alt"></i>
+                                        <span>{{ booking.start_date|date:"M d, Y" }} - {{ booking.end_date|date:"M d, Y" }}</span>
+                                    </div>
+                                    <div class="booking-info-item">
+                                        <i class="fas fa-users"></i>
+                                        <span>{{ booking.adults }} Adult{% if booking.adults > 1 %}s{% endif %}{% if booking.children %}, {{ booking.children }} Child{% if booking.children > 1 %}ren{% endif %}{% endif %}</span>
+                                    </div>
+                                    <div class="booking-info-item">
+                                        <i class="fas fa-clock"></i>
+                                        <span>Booked on {{ booking.created_at|date:"M d, Y" }}</span>
+                                    </div>
+                                </div>
+                                <div class="booking-price">
+                                    Total: ${{ booking.total_price }}
+                                </div>
+                                <div class="booking-actions">
+                                    <a href="{% url 'booking_detail' booking_id=booking.booking_id %}" class="btn btn-primary">
+                                        <i class="fas fa-eye me-1"></i> View Details
+                                    </a>
+                                    {% if booking.status == 'pending' or booking.status == 'confirmed' %}
+                                        <a href="{% url 'cancel_booking' booking_id=booking.booking_id %}" class="btn btn-outline-danger">
+                                            <i class="fas fa-times me-1"></i> Cancel
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-bookings">
+                <i class="fas fa-calendar-alt"></i>
+                <h2>No bookings yet</h2>
+                <p class="text-muted mb-4">You haven't made any bookings yet. Start exploring destinations and book your next adventure!</p>
+                <a href="{% url 'destination_list' %}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-globe-americas me-2"></i> Explore Destinations
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Recommended Destinations -->
+{% if not bookings %}
+    <section class="py-5 bg-light">
+        <div class="container">
+            <h2 class="section-title text-center mb-5">Popular Destinations</h2>
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="destination-card">
+                        <div class="card-img-wrapper">
+                            <img src="{% static 'images/destinations/bali.jpg' %}" alt="Bali" class="card-img-top">
+                            <span class="location-badge">
+                                <i class="fas fa-map-marker-alt me-1"></i> Indonesia
+                            </span>
+                            <div class="card-overlay">
+                                <a href="{% url 'destination_detail' slug='bali' %}" class="btn btn-sm btn-light rounded-circle">
+                                    <i class="fas fa-link"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h5 class="card-title mb-0">Bali</h5>
+                                <span class="badge bg-primary rounded-pill">Featured</span>
+                            </div>
+                            <div class="mb-3">
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star-half-alt text-warning"></i>
+                                <span class="text-muted ms-1">(124 reviews)</span>
+                            </div>
+                            <p class="card-text">Experience the perfect blend of stunning beaches, lush rice terraces, and vibrant cultural heritage.</p>
+                            <hr>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="price fw-bold">
+                                    <i class="fas fa-tag text-primary me-1"></i> From $199
+                                </div>
+                                <a href="{% url 'destination_detail' slug='bali' %}" class="btn btn-sm btn-primary">
+                                    Explore <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="destination-card">
+                        <div class="card-img-wrapper">
+                            <img src="{% static 'images/destinations/santorini.jpg' %}" alt="Santorini" class="card-img-top">
+                            <span class="location-badge">
+                                <i class="fas fa-map-marker-alt me-1"></i> Greece
+                            </span>
+                            <div class="card-overlay">
+                                <a href="{% url 'destination_detail' slug='santorini' %}" class="btn btn-sm btn-light rounded-circle">
+                                    <i class="fas fa-link"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h5 class="card-title mb-0">Santorini</h5>
+                                <span class="badge bg-primary rounded-pill">Featured</span>
+                            </div>
+                            <div class="mb-3">
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <span class="text-muted ms-1">(210 reviews)</span>
+                            </div>
+                            <p class="card-text">Discover the iconic white-washed buildings, blue domes, and breathtaking sunsets of this Greek paradise.</p>
+                            <hr>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="price fw-bold">
+                                    <i class="fas fa-tag text-primary me-1"></i> From $249
+                                </div>
+                                <a href="{% url 'destination_detail' slug='santorini' %}" class="btn btn-sm btn-primary">
+                                    Explore <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="destination-card">
+                        <div class="card-img-wrapper">
+                            <img src="{% static 'images/destinations/maldives.jpg' %}" alt="Maldives" class="card-img-top">
+                            <span class="location-badge">
+                                <i class="fas fa-map-marker-alt me-1"></i> Maldives
+                            </span>
+                            <div class="card-overlay">
+                                <a href="{% url 'destination_detail' slug='maldives' %}" class="btn btn-sm btn-light rounded-circle">
+                                    <i class="fas fa-link"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h5 class="card-title mb-0">Maldives</h5>
+                                <span class="badge bg-primary rounded-pill">Featured</span>
+                            </div>
+                            <div class="mb-3">
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star-half-alt text-warning"></i>
+                                <span class="text-muted ms-1">(186 reviews)</span>
+                            </div>
+                            <p class="card-text">Relax in luxury overwater bungalows surrounded by crystal clear turquoise waters and white sandy beaches.</p>
+                            <hr>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="price fw-bold">
+                                    <i class="fas fa-tag text-primary me-1"></i> From $299
+                                </div>
+                                <a href="{% url 'destination_detail' slug='maldives' %}" class="btn btn-sm btn-primary">
+                                    Explore <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endif %}
+{% endblock %}

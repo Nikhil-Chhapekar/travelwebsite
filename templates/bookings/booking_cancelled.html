@@ -1,0 +1,218 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load booking_extras %}
+
+{% block title %}Booking Cancelled - Discovering Paradise{% endblock %}
+
+{% block extra_css %}
+<style>
+    .cancelled-header {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 3rem 0;
+    }
+
+    .cancelled-container {
+        background-color: white;
+        border-radius: var(--border-radius);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        margin-top: -30px;
+        position: relative;
+        z-index: 10;
+    }
+
+    .cancelled-icon {
+        width: 100px;
+        height: 100px;
+        background-color: #dc3545;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        margin: 0 auto 2rem;
+    }
+
+    .booking-details {
+        background-color: #f8f9fa;
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .booking-details .detail-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px dashed #dee2e6;
+    }
+
+    .booking-details .detail-item:last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+    }
+
+    .booking-details .detail-item .label {
+        color: #6c757d;
+    }
+
+    .booking-details .detail-item .value {
+        font-weight: 600;
+    }
+
+    .refund-info {
+        background-color: #f8f9fa;
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .refund-info h4 {
+        margin-bottom: 1rem;
+    }
+
+    .refund-info .refund-amount {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+    }
+
+    .next-steps {
+        background-color: #f8f9fa;
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .next-steps h4 {
+        margin-bottom: 1rem;
+    }
+
+    .next-steps ul {
+        padding-left: 1.5rem;
+    }
+
+    .next-steps ul li {
+        margin-bottom: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Cancelled Header -->
+<header class="cancelled-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 mx-auto text-center">
+                <h1 class="display-4 mb-3">Booking Cancelled</h1>
+                <p class="lead">Your booking has been successfully cancelled.</p>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Cancelled Content -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="cancelled-container text-center">
+                    <div class="cancelled-icon">
+                        <i class="fas fa-times"></i>
+                    </div>
+                    <h2 class="mb-3">Your Booking Has Been Cancelled</h2>
+                    <p class="lead mb-5">We're sorry to see you cancel your booking. We've sent a confirmation email to {{ request.user.email }}.</p>
+
+                    <h3 class="text-start mb-3">Cancelled Booking Details</h3>
+                    <div class="booking-details">
+                        <div class="detail-item">
+                            <span class="label">Booking ID</span>
+                            <span class="value">{{ booking.booking_id }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Destination</span>
+                            <span class="value">{{ booking.destination.name }}, {{ booking.destination.country }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Accommodation</span>
+                            <span class="value">{{ booking.accommodation.name }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Check-in</span>
+                            <span class="value">{{ booking.start_date|date:"F d, Y" }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Check-out</span>
+                            <span class="value">{{ booking.end_date|date:"F d, Y" }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Booking Status</span>
+                            <span class="value">{{ booking.get_status_display }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Cancellation Date</span>
+                            <span class="value">{{ booking.updated_at|date:"F d, Y" }}</span>
+                        </div>
+                    </div>
+
+                    <h3 class="text-start mb-3">Refund Information</h3>
+                    <div class="refund-info text-start">
+                        {% with days_until_checkin=booking.start_date|days_until:booking.updated_at %}
+                            {% if days_until_checkin > 30 %}
+                                <h4>Refund Amount</h4>
+                                <div class="refund-amount">${{ booking.total_price }}</div>
+                                <p>Your cancellation was more than 30 days before your check-in date, so you are eligible for a full refund.</p>
+                            {% elif days_until_checkin > 14 %}
+                                <h4>Refund Amount</h4>
+                                {% with refund_amount=booking.total_price|floatformat:2|multiply:0.75 %}
+                                    <div class="refund-amount">${{ refund_amount }}</div>
+                                {% endwith %}
+                                <p>Your cancellation was 15-30 days before your check-in date, so you are eligible for a 75% refund.</p>
+                            {% elif days_until_checkin > 7 %}
+                                <h4>Refund Amount</h4>
+                                {% with refund_amount=booking.total_price|floatformat:2|multiply:0.5 %}
+                                    <div class="refund-amount">${{ refund_amount }}</div>
+                                {% endwith %}
+                                <p>Your cancellation was 7-14 days before your check-in date, so you are eligible for a 50% refund.</p>
+                            {% else %}
+                                <h4>Refund Amount</h4>
+                                <div class="refund-amount">$0</div>
+                                <p>Your cancellation was less than 7 days before your check-in date, so you are not eligible for a refund.</p>
+                            {% endif %}
+                        {% endwith %}
+                        <p>The refund will be processed to your original payment method and may take 5-10 business days to appear in your account.</p>
+                    </div>
+
+                    <h3 class="text-start mb-3">Next Steps</h3>
+                    <div class="next-steps text-start">
+                        <h4>What happens now?</h4>
+                        <ul>
+                            <li>You will receive a cancellation confirmation email with all the details.</li>
+                            <li>If you are eligible for a refund, it will be processed to your original payment method.</li>
+                            <li>The refund may take 5-10 business days to appear in your account.</li>
+                            <li>If you have any questions about your cancellation or refund, please contact our customer support team.</li>
+                        </ul>
+                    </div>
+
+                    <div class="d-grid gap-3 mt-5">
+                        <a href="{% url 'my_bookings' %}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-list me-2"></i> View All Bookings
+                        </a>
+                        <a href="{% url 'destination_list' %}" class="btn btn-outline-primary btn-lg">
+                            <i class="fas fa-globe-americas me-2"></i> Explore Destinations
+                        </a>
+                        <a href="{% url 'contact' %}" class="btn btn-outline-secondary btn-lg">
+                            <i class="fas fa-headset me-2"></i> Contact Support
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
